@@ -10,6 +10,8 @@ const METAL_FINDS = ['mdl_button', 'mdl_casing', 'mdl_coin', 'mdl_ring', 'mdl_so
 /* A coin bag's rarity is the rod luck it was found with, 1 to 5. */
 const COIN_BAG = 'luck_moneybag', COIN_BAG_LEVELS = [1, 2, 3, 4, 5];
 const CHEST = 'treasure_chest';
+/* How many the shops let you own, where it is more than one. */
+const OWN_LIMIT = { prop_chair: 4 };
 /* order of everything in Creatures that is not a catch */
 const FIND_ORDER = [...FRAGMENTS.map(f => f.id), ...BONES, ...METAL_FINDS, COIN_BAG];
-if (typeof module !== 'undefined') module.exports = { FRAGMENTS, FRAGMENTS_PER_TRADE, BONES, METAL_FINDS, COIN_BAG, COIN_BAG_LEVELS, CHEST, FIND_ORDER };
+if (typeof module !== 'undefined') module.exports = { FRAGMENTS, FRAGMENTS_PER_TRADE, BONES, METAL_FINDS, COIN_BAG, COIN_BAG_LEVELS, CHEST, OWN_LIMIT, FIND_ORDER };

@@ -9,7 +9,7 @@ const FILES = ['core/variant', 'core/nodes', 'core/diff', 'core/zip', 'data/item
 const ctx = vm.createContext({ console, TextEncoder, TextDecoder, atob, localStorage: { getItem: () => null, setItem() {} }, document: {}, window: {}, navigator: {} });
 for (const f of FILES) vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), ctx, { filename: f });
 const E = (code) => vm.runInContext(code, ctx);
-const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, FRAGMENTS, BONES, METAL_FINDS, COIN_BAG, CHEST, FIND_ORDER, KEEPER_TOOLS, KEEPER_PROPS, countItems, lacking, fragmentSet, boneSet, findSet, clearInventory, bonesOpen, SECRET_COSMETICS, SECRET_ITEMS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
+const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, FRAGMENTS, BONES, METAL_FINDS, COIN_BAG, CHEST, FIND_ORDER, OWN_LIMIT, KEEPER_TOOLS, KEEPER_PROPS, countItems, lacking, fragmentSet, boneSet, findSet, clearInventory, bonesOpen, SECRET_COSMETICS, SECRET_ITEMS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
 
 const same = (a, b, m) => assert.deepStrictEqual(JSON.parse(JSON.stringify([...a])), JSON.parse(JSON.stringify([...b])), m);
 let passed = 0;
@@ -169,7 +169,7 @@ for (const [name, root0] of saves) {
     assert.deepStrictEqual(stops(f).length, 0);
     for (const [label, a, b] of X.completion(f.root)) assert.strictEqual(a, b, label);
     const kept = X.get(root0, 'inventory').v.filter(n => String(X.val(n, 'ref')) === '0').length, all = X.get(f.root, 'inventory').v;
-    assert.strictEqual(all.length, kept + X.KEEPER_TOOLS.length + X.KEEPER_PROPS.length + 8 + 936 + 12 + 5 + 11);
+    assert.strictEqual(all.length, kept + X.KEEPER_TOOLS.length + X.KEEPER_PROPS.length + 3 + 8 + 936 + 12 + 5 + 11);
     const old = new Set(X.get(root0, 'inventory').v.map(n => String(X.val(n, 'ref'))).filter(x => x !== '0'));
     assert(all.every(n => !old.has(String(X.val(n, 'ref')))));
     const live = new Set(all.map(n => String(X.val(n, 'ref')))); assert([...X.favoriteSet(f.root)].every(x => live.has(x)));
@@ -179,6 +179,15 @@ for (const [name, root0] of saves) {
   test(name + ': clearing with everything else off still leaves a rod', () => {
     const r = fresh(); X.unlockEverything(r, {}, { clear: true });
     same(X.tabItems(r, 'tool').map(n => X.val(n, 'id')), ['fishing_rod_simple']);
+  });
+  test(name + ': unlock gives four chairs, side by side, and one of every other prop', () => {
+    const r = fresh(); X.unlockEverything(r, parts); X.unlockEverything(r, parts);
+    const list = X.tabItems(r, 'furniture').map(n => X.val(n, 'id'));
+    assert.strictEqual(list.filter(id => id === 'prop_chair').length, Math.max(4, X.countItems(root0, 'prop_chair')));
+    assert.strictEqual(list.lastIndexOf('prop_chair') - list.indexOf('prop_chair'), list.filter(id => id === 'prop_chair').length - 1);
+    assert.strictEqual(list[list.indexOf('prop_chair') - 1], 'prop_table'); assert.strictEqual(list[list.lastIndexOf('prop_chair') + 1], 'prop_therapy_seat');
+    for (const id of X.KEEPER_PROPS) if (id !== 'prop_chair') assert.strictEqual(list.filter(x => x === id).length, Math.max(1, X.countItems(root0, id)), id);
+    const some = X.freshRoot(); X.addItems(some, [{ id: 'prop_chair' }]); X.unlockEverything(some, { props: true }); assert.strictEqual(X.countItems(some, 'prop_chair'), 4);
   });
   test(name + ': unlock never lowers a number', () => {
     const r = fresh(); X.unlockEverything(r, parts);

@@ -223,7 +223,7 @@ function completion(root) {
   const owned = new Set(val(root, 'cosmetics_unlocked').map(x => x.v));
   const lures = new Set(val(root, 'lure_unlocked').map(x => x.v)), baits = new Set(val(root, 'bait_unlocked').map(x => x.v));
   const ids = new Set(invOf(root).v.map(n => val(n, 'id')));
-  const fullPlan = FULL_COLLECTION(), maxed = maxedIds(root);
+  const fullPlan = FULL_COLLECTION(), maxed = maxedIds(root), props = ownable(KEEPER_PROPS);
   let caught = 0, stamps = 0;
   for (const s of JOURNAL_SECTIONS) for (const id of JOURNAL_IDS[s.key]) {
     const e = journalEntry(root, s.key, id);
@@ -240,7 +240,7 @@ function completion(root) {
     ['Lures', Object.keys(GAME_LURES).filter(id => lures.has(id)).length, Object.keys(GAME_LURES).length],
     ['Bait', Object.keys(GAME_BAITS).filter(id => baits.has(id)).length, Object.keys(GAME_BAITS).length],
     ['Tools', KEEPER_TOOLS.filter(id => maxed.has(id)).length, KEEPER_TOOLS.length],
-    ['Props', KEEPER_PROPS.filter(id => ids.has(id)).length, KEEPER_PROPS.length],
+    ['Props', props.length - lacking(root, props).length, props.length],
     ['Unused items', UNUSED_ITEMS.filter(id => ids.has(id)).length, UNUSED_ITEMS.length],
     ['Fragments', fragmentSet(1).length - lacking(root, fragmentSet(1)).length, fragmentSet(1).length],
     ['Spectral bones', BONES.length - lacking(root, boneSet(1)).length, BONES.length],
@@ -264,6 +264,8 @@ const repeat = (n, fn) => Array.from({ length: n }, fn);
 function fragmentSet(sets) { return FRAGMENTS.flatMap(f => repeat(sets * FRAGMENTS_PER_TRADE, () => collectible(f.id))); }
 function boneSet(sets) { return repeat(sets, () => BONES.map(id => collectible(id))).flat(); }
 function findSet() { return [...METAL_FINDS.map(id => collectible(id)), ...COIN_BAG_LEVELS.map(q => collectible(COIN_BAG, q)), collectible(CHEST)]; }
+/* every copy of these you can own: one of each, or the shop's limit, in full stacks */
+function ownable(ids) { return ids.flatMap(id => repeat(OWN_LIMIT[id] || 1, () => ({ ...collectible(id), count: stackMax(id) }))); }
 /* the part of a list that is not owned yet, counting duplicates */
 function lacking(root, list) {
   const key = (id, q) => id + (id === COIN_BAG ? '|' + q : ''), have = new Map();
@@ -308,7 +310,7 @@ const UNLOCK_PARTS = [
   ['camp', 'Camp', 'Tier 4, loan paid off'],
   ['cosmetics', 'Cosmetics', 'Everything in the game files, including hidden ones'],
   ['tools', 'Tools', 'Every rod, instrument, chalk, drink and gadget, with full stacks of 99'],
-  ['props', 'Props', 'One of each prop you lack'],
+  ['props', 'Props', 'Every prop, as many as the shop lets you own (4 chairs)'],
   ['unused', 'Unused items', 'The 8 leftovers from cut features, see Secret items'],
   ['fragments', 'Fragments', 'Three of each metal detector fragment, enough for all four trades'],
   ['bones', 'Spectral bones', 'All five, and opens the hidden bone shop'],
@@ -353,9 +355,7 @@ function unlockEverything(root, parts, { addFishSet, clear = false } = {}) {
     const arr = get(root, 'cosmetics_unlocked'), have = new Set(arr.v.map(x => x.v));
     for (const id of USABLE_COSMETICS) if (!have.has(id)) arr.v.push(N.str(id));
   }
-  const ids = new Set(invOf(root).v.map(n => val(n, 'id')));
-  const want = [...(parts.tools ? KEEPER_TOOLS : []), ...(parts.props ? KEEPER_PROPS : []), ...(parts.unused ? UNUSED_ITEMS : [])].filter(id => !ids.has(id));
-  if (want.length) addItems(root, want.map(id => ({ id, count: stackMax(id), size: GAME_ITEMS[id].usesSize ? fishAvg(id) : 1 })));
+  addItems(root, lacking(root, ownable([...(parts.tools ? KEEPER_TOOLS : []), ...(parts.props ? KEEPER_PROPS : []), ...(parts.unused ? UNUSED_ITEMS : [])])));
   if (parts.tools) fillStacks(root);
   if (parts.journal) for (const id of CATCHABLE) recordCatch(root, id, { size: GAME_ITEMS[id].avg, qualities: [0, 1, 2, 3, 4, 5] });
   if (parts.quests) maxQuests(root);
