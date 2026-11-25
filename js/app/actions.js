@@ -17,13 +17,13 @@ function makeItem(id, o = {}, used) {
     ['tags', N.arr()], ['custom_name', N.str(cleanName(o.name))], ['count', N.int(Math.min(LIMITS.stack, Math.max(1, o.count ?? 1)))]
   ]);
 }
-/* list: [{ id, size, quality, name, count, fav }]. Returns how many fit. */
+/* list: [{ id, size, quality, name, count }]. Returns what fit. Everything added is favorited, so it cannot be sold by accident. */
 function addItems(root, list) {
   const inv = invOf(root), used = refSet(root);
   const room = Math.max(0, LIMITS.inventory - inv.v.length);
   const added = list.slice(0, room).map(o => makeItem(o.id, o, used));
   inv.v.push(...added);
-  setFavorites(root, added.filter((n, i) => list[i].fav).map(n => val(n, 'ref')));
+  setFavorites(root, added.map(n => val(n, 'ref')));
   return added;
 }
 function removeRefs(root, refs) {
@@ -206,10 +206,10 @@ function missingFish(root, plan) {
   return plan.filter(x => !have.has(fishKey(x.id, x.quality, x.size)));
 }
 function hasFullCollection(root) { return !missingFish(root, FULL_COLLECTION()).length; }
-/* every fish in the inventory that belongs to the collection, and the unused test fish */
-function favoriteCollection(root) {
+/* Favorite what earlier unlocks added too: the collection, the unused fish, and any of the listed ids. */
+function favoriteEarlier(root, ids) {
   const keys = new Set(FULL_COLLECTION().map(x => fishKey(x.id, x.quality, x.size)));
-  setFavorites(root, tabItems(root, 'fish').filter(n => UNUSED_ITEMS.includes(val(n, 'id')) || keys.has(fishKey(val(n, 'id'), val(n, 'quality'), Number(val(n, 'size'))))).map(n => val(n, 'ref')));
+  setFavorites(root, invOf(root).v.filter(n => ids.has(val(n, 'id')) || (ids.has('collection') && keys.has(fishKey(val(n, 'id'), val(n, 'quality'), Number(val(n, 'size')))))).map(n => val(n, 'ref')));
 }
 function addFish(root, list, journal) {
   const added = addItems(root, list);
@@ -326,7 +326,7 @@ function toggleInList(arr, id, on) {
 }
 /* Only ever adds or raises. The outfit is not touched; owned items change only by filling their stack, and their place only if organize is on. */
 /* The whole fish set is added, with nothing skipped. Only a save that already holds all 936 needs addFishSet to get another. */
-function unlockEverything(root, parts, { favoriteFish = false, addFishSet, clear = false } = {}) {
+function unlockEverything(root, parts, { addFishSet, clear = false } = {}) {
   if (clear) clearInventory(root);
   const addSet = addFishSet == null ? !hasFullCollection(root) : addFishSet;
   const raise = (key, v) => { const n = get(root, key); if (n && Number(n.v) < v) setNum(n, v); };
@@ -359,13 +359,11 @@ function unlockEverything(root, parts, { favoriteFish = false, addFishSet, clear
   if (parts.tools) fillStacks(root);
   if (parts.journal) for (const id of CATCHABLE) recordCatch(root, id, { size: GAME_ITEMS[id].avg, qualities: [0, 1, 2, 3, 4, 5] });
   if (parts.quests) maxQuests(root);
-  if (parts.fish) {
-    if (addSet) addFish(root, FULL_COLLECTION(), parts.journal);
-    if (favoriteFish) favoriteCollection(root);
-  }
+  if (parts.fish && addSet) addFish(root, FULL_COLLECTION(), parts.journal);
   if (parts.fragments) addItems(root, lacking(root, fragmentSet(1)));
   if (parts.bones) { addItems(root, lacking(root, boneSet(1))); toggleInList(get(root, 'saved_tags'), BONE_FLAG, true); }
   if (parts.finds) addItems(root, lacking(root, findSet()));
+  favoriteEarlier(root, new Set([...(parts.fish ? ['collection'] : []), ...(parts.unused ? UNUSED_ITEMS : []), ...(parts.fragments ? FRAGMENTS.map(f => f.id) : []), ...(parts.bones ? BONES : []), ...(parts.finds ? [...METAL_FINDS, COIN_BAG, CHEST] : [])]));
   if (parts.tutorial) setTutorialDone(root, true);
   if (clear) ensureRod(root);
   if (parts.organize) organizeAll(root);

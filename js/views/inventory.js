@@ -171,6 +171,7 @@ function InventoryView() {
         button('Duplicate', () => edit('Duplicate item', () => {
           const c = clone(n), inv = invOf(root), r = newRef(refSet(root));
           c.m.set('ref', N.int(r));
+          setFavorites(root, [r]);
           inv.v.splice(inv.v.indexOf(n) + 1, 0, c);
           st.open = String(r);
         }), 'small'),
@@ -233,7 +234,7 @@ function addItemDialog() {
         toast(added === n ? 'Added ' + n + ' × ' + nameOf(pick) : 'Added ' + added + '. The inventory is full at 10,000.', added === n ? '' : 'bad');
       }, 'primary')));
   };
-  const m = modal('Add item', [q, chips, checkbox('Show unused items (the game never hands these out)', false, v => { unused = v; draw(); }), h('div', { class: 'scroll' }, list), form], { wide: true });
+  const m = modal('Add item', [q, chips, h('p', { class: 'muted small' }, 'Items you add are favorited, so they cannot be sold by accident.'), checkbox('Show unused items (the game never hands these out)', false, v => { unused = v; draw(); }), h('div', { class: 'scroll' }, list), form], { wide: true });
   q.addEventListener('input', draw);
   drawChips(); draw(); drawForm(); q.focus();
 }

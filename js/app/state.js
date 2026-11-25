@@ -11,8 +11,8 @@ const S = {
   mode: prefs.get('mode', 'simple') === 'advanced' ? 'advanced' : 'simple',
   view: 'home', undo: [], redo: [], compare: null, rev: 0,
   inv: { q: '', tab: 'tool', sel: new Set(), open: null },
-  fish: { id: 'fish_lake_bass', quality: 5, preset: 'biggest', size: null, name: '', copies: 1, fav: false, journal: true,
-    sections: new Set(['lake', 'ocean', 'rain', 'water_trash', 'alien', 'void']), rarities: new Set([0, 1, 2, 3, 4, 5]), sizes: new Set(['smallest', 'biggest']), skipOwned: false, favAll: true, setJournal: true },
+  fish: { id: 'fish_lake_bass', quality: 5, preset: 'biggest', size: null, name: '', copies: 1, journal: true,
+    sections: new Set(['lake', 'ocean', 'rain', 'water_trash', 'alien', 'void']), rarities: new Set([0, 1, 2, 3, 4, 5]), sizes: new Set(['smallest', 'biggest']), skipOwned: false, setJournal: true },
   jr: { sec: 'lake', q: '', open: null, show: 'all' },
   cos: { q: '', cat: 'hat', show: 'all' },
   rawOpen: new Set()

@@ -27,7 +27,7 @@ No save handy? The page opens with a sample game, so you can look around first. 
 
 One button fills in what you are missing: money, rank, rod and buddy upgrades, bait, lures, camp, cosmetics, tools, props, fragments, spectral bones, unused items, the journal, quests and a collection of 936 fish. It fills stacks to 99, organizes your inventory and skips the tutorial. Your outfit stays as it is, and you can untick any part.
 
-It asks whether to favorite the fish, because favorites cannot be sold in the shop, not even with Sell all. On a save with progress it can also clear your inventory first, so you start with a tidy bag.
+Everything the tool adds is favorited, because favorites cannot be sold in the shop, not even with Sell all. On a save with progress it can also clear your inventory first, so you start with a tidy bag.
 
 ### Rearrange your inventory
 
@@ -86,7 +86,7 @@ Backups live in your browser, so clearing site data removes them. Download the o
 - The game may award **Steam achievements** for money, rank and journal.
 - **Do not mail unused items.** In the game's code, mailing one turns it into a salmon.
 - The game lets you favorite about 100 items by hand. It keeps more if they come from a save, but you cannot add others in the game until you are back to 100.
-- **Fragments and bones are never favorited**, because the game does not let you trade or mail favorites. Sell all would sell them.
+- **Everything the tool adds is favorited.** To sell, trade or mail one of those items, unfavorite it in the game with right-click.
 - Contributor titles show as “Scout” on accounts that are not contributors, so Unlock everything leaves them out.
 
 ## Privacy

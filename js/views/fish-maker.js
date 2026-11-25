@@ -3,7 +3,7 @@
 function FishView() {
   const f = S.files.save;
   if (!f) return needFile('save', 'Fish maker');
-  return h('div', { class: 'page' }, pageHead('Fish maker', 'Build one fish exactly how you want it, or add whole collections.'), CustomFish(f), FishCollection(f));
+  return h('div', { class: 'page' }, pageHead('Fish maker', 'Build one fish exactly how you want it, or add whole collections. Fish you add are favorited, so they cannot be sold by accident.'), CustomFish(f), FishCollection(f));
 }
 
 function CustomFish(f) {
@@ -32,13 +32,12 @@ function CustomFish(f) {
       h('div', { class: 'two' },
         field('Custom name', h('input', { type: 'text', value: st.name, maxlength: LIMITS.nameLength, placeholder: 'Optional', oninput: (e) => { st.name = cleanName(e.target.value); drawPreview(); } }), 'The game adds “(edit)” after it.'),
         field('How many', h('input', { type: 'number', value: st.copies, min: 1, max: 500, onchange: (e) => { st.copies = Math.min(500, Math.max(1, Math.round(parseFloat(e.target.value)) || 1)); e.target.value = st.copies; } }))),
-      checkbox('Mark as favorite', st.fav, v => { st.fav = v; }),
       checkbox('Also record it in the journal', st.journal, v => { st.journal = v; }),
       button('Add fish', () => {
         const s = size();
         let added = 0;
         commit('save', 'Add custom fish', () => {
-          added = addItems(root, Array.from({ length: st.copies }, () => ({ id: st.id, size: s, quality: st.quality, name: st.name, fav: st.fav }))).length;
+          added = addItems(root, Array.from({ length: st.copies }, () => ({ id: st.id, size: s, quality: st.quality, name: st.name }))).length;
           if (st.journal && added) recordCatch(root, st.id, { size: s, qualities: [st.quality], count: added });
         }, { render: false });
         toast(added ? 'Added ' + plural(added, 'fish', 'fish') + '. They are at the end of Creatures.' : 'The inventory is full.', added ? '' : 'bad');
@@ -64,7 +63,6 @@ function FishCollection(f) {
       h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Rarities'), rarityPills([...st.rarities], (i) => flip(st.rarities, i), true)),
       h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Sizes'), h('div', { class: 'chips' }, chip('Smallest possible', st.sizes.has('smallest'), () => flip(st.sizes, 'smallest')), chip('Biggest possible', st.sizes.has('biggest'), () => flip(st.sizes, 'biggest'))),
         h('span', { class: 'hint' }, 'Smallest is 0.01 cm, the game’s own floor. Biggest is ' + MAX_NATURAL_RATIO.toFixed(2) + ' times the average, the most the game’s size roll can reach. Rarity does not change size.')),
-      checkbox('Favorite them (favorites cannot be sold, not even with Sell all)', st.favAll, v => { st.favAll = v; }),
       checkbox('Skip exact copies I already have (same fish, rarity and size)', st.skipOwned, v => { st.skipOwned = v; draw(); }),
       checkbox('Also record them in the journal', st.setJournal, v => { st.setJournal = v; }),
       out);
@@ -72,7 +70,6 @@ function FishCollection(f) {
       let added = [];
       commit('save', 'Add fish collection', () => {
         added = addFish(root, list, st.setJournal);
-        if (st.favAll) setFavorites(root, added.map(n => val(n, 'ref')));
       }, { render: false });
       toast('Added ' + plural(added.length, 'fish', 'fish') + '. Undo removes them all.');
       draw();

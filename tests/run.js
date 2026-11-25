@@ -76,7 +76,7 @@ for (const [name, root0] of saves) {
   test(name + ': unlock everything completes every meter', () => { const r = fresh(); X.unlockEverything(r, parts); for (const [label, a, b] of X.completion(r)) assert.strictEqual(a, b, label); });
   test(name + ': unlock keeps outfit, items, hotbar, lists, and order when organize is off', () => {
     const r = fresh(); X.unlockEverything(r, { ...parts, organize: false });
-    for (const k of ['cosmetics_equipped', 'hotbar', 'locked_refs', 'muted_players', 'hidden_players', 'guitar_shapes', 'lure_selected', 'bait_selected']) assert.strictEqual(X.diff(X.get(root0, k), X.get(r, k)).length, 0, k);
+    for (const k of ['cosmetics_equipped', 'hotbar', 'muted_players', 'hidden_players', 'guitar_shapes', 'lure_selected', 'bait_selected']) assert.strictEqual(X.diff(X.get(root0, k), X.get(r, k)).length, 0, k);
     const a = X.get(root0, 'inventory').v, b = X.get(r, 'inventory').v;
     a.forEach((n, i) => assert(X.diff(n, b[i]).every(d => d.path.join() === 'count' && X.GAME_ITEMS[X.val(n, 'id')].stack), X.val(n, 'id')));
   });
@@ -102,19 +102,24 @@ for (const [name, root0] of saves) {
     X.unlockEverything(r, { fish: true }); assert.strictEqual(X.tabItems(r, 'fish').length, n0 + 936);
     X.unlockEverything(r, { fish: true }, { addFishSet: true }); assert.strictEqual(X.tabItems(r, 'fish').length, n0 + 1872);
   });
-  test(name + ': favoriting covers the set, keeps old favorites, and is safe to save', () => {
+  test(name + ': everything unlock adds is favorited, and other items keep their state', () => {
     const base = fresh(); if (X.hasFullCollection(base)) X.removeRefs(base, refs(base, 'fish'));
-    const f = open('webfishing_save_slot_0.sav', base), old = X.favoriteSet(base), ownFish = new Set(refs(base, 'fish'));
-    X.unlockEverything(f.root, parts, { favoriteFish: true });
-    const favs = X.favoriteSet(f.root), tradable = new Set(X.tabItems(f.root, 'fish').filter(n => X.FIND_ORDER.includes(X.val(n, 'id'))).map(n => String(X.val(n, 'ref')))), added = refs(f.root, 'fish').filter(x => !ownFish.has(x) && !tradable.has(x));
-    for (const x of tradable) assert.strictEqual(favs.has(x), old.has(x), 'fragments and bones stay tradable');
-    assert.strictEqual(added.length, 936 + 3); assert(added.every(x => favs.has(x))); assert([...old].every(x => favs.has(x)));
+    const f = open('webfishing_save_slot_0.sav', base), old = X.favoriteSet(base), own = new Map(X.get(base, 'inventory').v.map(n => [String(X.val(n, 'ref')), X.val(n, 'id')]));
+    X.unlockEverything(f.root, parts);
+    const favs = X.favoriteSet(f.root), added = X.get(f.root, 'inventory').v.map(n => String(X.val(n, 'ref'))).filter(x => !own.has(x));
+    assert(added.length >= 936); assert(added.every(x => favs.has(x))); assert([...old].every(x => favs.has(x)));
     assert.strictEqual(favs.size, X.val(f.root, 'locked_refs').length);
-    for (const x of ownFish) assert.strictEqual(favs.has(x), old.has(x));
-    assert.strictEqual(stops(f).length, 0);
-    const again = X.clone(f.root); X.unlockEverything(again, parts, { favoriteFish: true }); assert.strictEqual(X.favoriteSet(again).size, favs.size);
+    const swept = new Set([...X.FIND_ORDER, X.CHEST, ...X.SECRET_ITEMS.map(s => s.id)]);
+    for (const [x, id] of own) if (!swept.has(id)) assert.strictEqual(favs.has(x), old.has(x), id);
+    assert(!favs.has('0')); assert.strictEqual(stops(f).length, 0);
+    const again = X.clone(f.root); X.unlockEverything(again, parts); assert.strictEqual(X.favoriteSet(again).size, favs.size);
   });
-  test(name + ': saying no favorites nothing', () => { const r = fresh(); X.unlockEverything(r, parts); assert.strictEqual(X.favoriteSet(r).size, X.favoriteSet(root0).size); });
+  test(name + ': unlocking again favorites what an earlier unlock left unfavorited', () => {
+    const r = fresh(); X.unlockEverything(r, parts); const before = X.clone(r); X.get(r, 'locked_refs').v = []; X.unlockEverything(r, parts);
+    const favs = X.favoriteSet(r), swept = new Set([...X.FIND_ORDER, X.CHEST, ...X.SECRET_ITEMS.map(s => s.id)]);
+    for (const n of X.get(r, 'inventory').v) if (swept.has(X.val(n, 'id'))) assert(favs.has(String(X.val(n, 'ref'))), X.val(n, 'id'));
+    assert(X.FULL_COLLECTION().length <= X.tabItems(r, 'fish').filter(n => favs.has(String(X.val(n, 'ref')))).length);
+  });
   test(name + ': unlock adds the full fish collection once', () => { const r = fresh(); X.unlockEverything(r, parts); assert.strictEqual(X.missingFish(r, X.FULL_COLLECTION()).length, 0); });
   test(name + ': unlock fills every stack and nothing else', () => {
     const r = fresh(); X.unlockEverything(r, parts);
@@ -128,7 +133,7 @@ for (const [name, root0] of saves) {
     for (const n of X.get(r, 'inventory').v) if (!before.has(String(X.val(n, 'ref'))) && !X.GAME_ITEMS[X.val(n, 'id')].stack) assert.strictEqual(X.val(n, 'count'), 1);
   });
   test(name + ': organizing groups every kind and only moves items', () => {
-    const r = fresh(); X.unlockEverything(r, parts, { favoriteFish: true });
+    const r = fresh(); X.unlockEverything(r, parts, {});
     const before = X.clone(r); X.organizeAll(r);
     assert(X.sameBytes(X.serializeFile(before, null), X.serializeFile(r, null)), 'organizing twice changes nothing');
     const loose = fresh(); X.unlockEverything(loose, { ...parts, organize: false });
@@ -160,7 +165,7 @@ for (const [name, root0] of saves) {
   });
   test(name + ': clearing first leaves only what unlock adds, and keeps everything that is not the bag', () => {
     const f = open('webfishing_save_slot_0.sav', fresh());
-    X.unlockEverything(f.root, parts, { clear: true, favoriteFish: true });
+    X.unlockEverything(f.root, parts, { clear: true });
     assert.deepStrictEqual(stops(f).length, 0);
     for (const [label, a, b] of X.completion(f.root)) assert.strictEqual(a, b, label);
     const kept = X.get(root0, 'inventory').v.filter(n => String(X.val(n, 'ref')) === '0').length, all = X.get(f.root, 'inventory').v;
@@ -239,6 +244,10 @@ test('the sample game loads, is marked, and never counts as unsaved', () => {
   E('loadSample()'); assert(E('isSample()')); assert(E('S.files.save.lossless'));
   E("setNum(get(S.files.save.root, 'money'), 777); diffCache = null"); assert(E("isDirty('save')")); assert(!E("unsaved('save')"));
   E('loadSample()'); assert.strictEqual(Number(E("val(S.files.save.root, 'money')")), 25);
+});
+test('every way of adding items favorites them', () => {
+  const r = X.freshRoot(), made = [...X.addItems(r, [{ id: 'guitar' }, { id: 'fish_lake_bass', size: 45, quality: 2 }]), ...X.addItems(r, X.fragmentSet(1)), ...X.addItems(r, X.boneSet(1))];
+  const favs = X.favoriteSet(r); assert(made.every(n => favs.has(String(X.val(n, 'ref'))))); assert.strictEqual(favs.size, made.length);
 });
 test('hotbar and favorites follow removal', () => {
   const r = X.freshRoot(), [n] = X.addItems(r, [{ id: 'guitar' }]), ref = X.val(n, 'ref');

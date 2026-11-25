@@ -13,7 +13,7 @@ function SimpleView() {
         h('span', { class: 'muted small' }, plural(s.fish, 'fish', 'fish') + ' caught, ' + plural(s.items, 'item')))),
     h('section', { class: 'simple-main' },
       h('h1', null, full ? 'Everything is unlocked' : 'Unlock everything on this save'),
-      h('p', { class: 'muted' }, 'Your outfit stays as it is. This adds what you are missing, fills your stacks and puts each kind of item together. It asks first if you want to start with an empty bag.'),
+      h('p', { class: 'muted' }, 'Your outfit stays as it is. This adds what you are missing, fills your stacks and puts each kind of item together. Everything added is favorited so you cannot sell it by accident.'),
       h('div', { class: 'meters' }, rows.map(([l, a, b]) => meter(l, a, b))),
       h('div', { class: 'row wrap' },
         button('Unlock everything', run, (done || full ? '' : 'primary ') + 'huge', { disabled: !Object.values(simpleParts).some(Boolean) }),

@@ -23,7 +23,7 @@ function CollectiblesView() {
   };
   const open = bonesOpen(root), hasRod = countItems(root, 'fishing_rod_skeleton') > 0;
   return h('div', { class: 'page' }, pageHead('Fragments and bones', 'Things you trade in, or mail to a friend. They go in Creatures.'),
-    h('p', { class: 'note' }, 'Leave these un-hearted: the game does not let you trade or mail favorites. That also means Sell all will sell them, so do not press it while you are holding them.'),
+    h('p', { class: 'note' }, 'Everything you add is favorited, so Sell all cannot take it. Before you trade or mail one, unfavorite it in the game with right-click.'),
     card('Metal detector fragments', h('p', { class: 'muted' }, 'Three of a kind plus $25 at the dock shop buys the item. One set is three of each, enough for all four.'),
       sets('Add full sets', k => addItems(root, fragmentSet(k))),
       FRAGMENTS.map(x => row(x.id, 'Three buy the ' + nameOf(x.gives) + (val(root, 'cosmetics_unlocked').some(n => n.v === x.gives) ? ', which you already own' : '')))),
