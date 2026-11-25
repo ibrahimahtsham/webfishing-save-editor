@@ -14,6 +14,7 @@ function SecretsView() {
       h('div', { class: 'grow' },
         h('div', { class: 'row wrap' }, h('h3', null, nameOf(id)), root ? h('span', { class: 'tag' + (has ? ' good' : '') }, has ? 'You have it' : 'Not yet') : null),
         h('p', null, text),
+        ITEM_WARNINGS[id] ? h('p', { class: 'warn small' }, ITEM_WARNINGS[id]) : null,
         look ? h('p', { class: 'muted small' }, 'See it in the game: ' + look) : null),
       add && root && !has ? button('Add to my save', () => { commit('save', 'Add ' + nameOf(id), () => add(id)); toast('Added ' + nameOf(id) + '. Save to see it in the game.'); }, 'small') : null);
   };
@@ -30,6 +31,7 @@ function SecretsView() {
     section('Hidden cosmetics', 'Finished and wearable, but the game never gives them to you.', SECRET_COSMETICS, own),
     section('Unused items', 'Left over from features that were cut. The game never hands these out.', SECRET_ITEMS, item,
       'Do not mail these. The game turns an unused item into a salmon when it is mailed.'),
+    section('Never sold', 'Works, but nothing in the game sells it or gives it out.', UNSOLD_ITEMS, item),
     section('Secrets you can find yourself', 'Everyone can get these by playing. The Fragments and bones page can add the parts.', FINDABLE_SECRETS, null),
     h('section', { class: 'secretblock' }, h('h2', null, 'Contributor titles'),
       h('p', { class: 'muted' }, 'Made for people who helped with the game. Anyone else who wears one is shown as “Scout”, so adding them does nothing.'),

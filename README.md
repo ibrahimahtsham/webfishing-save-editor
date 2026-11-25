@@ -43,7 +43,7 @@ Pick the species, rarity, size, name and amount, and see what it sells for. Or a
 
 ### Dress up your character
 
-A live preview with the game's own faces, hats and colours. The body is a drawing that stands in for the 3D model.
+A live preview with the game's own faces, hats and colours. The body is a drawing that stands in for the 3D model. You can also wear more than 4 accessories, which the game's own menu does not allow.
 
 ![Cosmetics page with a live outfit preview](docs/screenshots/cosmetics.png)
 
@@ -84,6 +84,7 @@ Backups live in your browser, so clearing site data removes them. Download the o
 
 - After loading an unlocked save, **catch one fish**. The game then checks your journal and opens the rod rewards.
 - The game may award **Steam achievements** for money, rank and journal.
+- **Placing the Canvas Prop can get you kicked.** Servers that run Cove kick anyone who places a canvas unless the owner allows it. Use it in your own lobby.
 - **Do not mail unused items.** In the game's code, mailing one turns it into a salmon.
 - The game lets you favorite about 100 items by hand. It keeps more if they come from a save, but you cannot add others in the game until you are back to 100.
 - **Everything the tool adds is favorited.** To sell, trade or mail one of those items, unfavorite it in the game with right-click.

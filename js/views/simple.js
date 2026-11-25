@@ -22,5 +22,6 @@ function SimpleView() {
       h('details', { class: 'options' }, h('summary', null, 'Choose what gets unlocked'),
         h('div', { class: 'optgrid' }, UNLOCK_PARTS.map(([k, label, desc]) => checkbox(h('span', null, h('b', null, label), h('span', { class: 'muted small block' }, desc)), simpleParts[k], v => { simpleParts[k] = v; })))),
       h('p', { class: 'muted small' }, 'After loading, catch one fish: the game then re-checks your journal and opens the collector rod rewards. It may also award Steam achievements for money, rank and journal.'),
+      h('p', { class: 'note small' }, h('b', null, 'Canvas Prop: '), ITEM_WARNINGS.prop_canvas),
       h('p', { class: 'muted small' }, 'Want to pick things one by one? ', h('button', { type: 'button', class: 'link', onclick: () => setMode('advanced') }, 'Switch to Advanced'), '. Curious what is hidden in the game? ', h('button', { type: 'button', class: 'link', onclick: () => go('secrets') }, 'See the secret items'), '.')));
 }

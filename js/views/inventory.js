@@ -151,6 +151,7 @@ function InventoryView() {
     const head = h('div', { class: 'dhead' }, itemIcon(id, 'ic huge'), h('div', null, h('h2', null, nameOf(id)), h('code', { class: 'muted' }, id),
       !data ? h('p', { class: 'warn small' }, 'Not in the game’s item list. It is kept as it is.') : data.unobtainable ? h('p', { class: 'warn small' }, data.hidden ? 'The game adds this itself. Leave it alone.' : 'Unused item: the game never hands this out. Do not mail it.') : null));
     if (ref === '0') { addKids(detail, head); return; }
+    if (ITEM_WARNINGS[id]) head.lastChild.append(h('p', { class: 'warn small' }, ITEM_WARNINGS[id]));
     const pos = list().findIndex(x => refOf(x) === ref), last = list().length - 1;
     const sizeN = get(n, 'size'), countN = get(n, 'count') || N.int(1);
     const name = h('input', { type: 'text', value: val(n, 'custom_name') || '', maxlength: LIMITS.nameLength, placeholder: 'No custom name', onchange: (e) => edit('Rename item', () => { ensure(n, 'custom_name', () => N.str('')).v = cleanName(e.target.value); }) });
@@ -222,6 +223,7 @@ function addItemDialog() {
     put(form);
     if (!pick) { addKids(form, h('p', { class: 'muted' }, 'Pick an item above.')); return; }
     const d = GAME_ITEMS[pick];
+    if (ITEM_WARNINGS[pick]) addKids(form, h('p', { class: 'note' }, ITEM_WARNINGS[pick]));
     const num = (label, key, min, max, step) => field(label, h('input', { type: 'number', value: o[key], min, max, step: step || 1, onchange: (e) => { o[key] = Math.min(max, Math.max(min, parseFloat(e.target.value) || min)); e.target.value = o[key]; } }));
     addKids(form, h('div', { class: 'row wrap end-align' }, h('b', null, nameOf(pick)), num('Copies', 'copies', 1, 500), d.usesSize ? num('Size (cm)', 'size', MIN_FISH_SIZE, ABSOLUTE_MAX_SIZE, 'any') : null, d.stack ? num('Stack', 'count', 1, LIMITS.stack) : null,
       itemTab(pick) === 'fish' ? h('div', { class: 'field wide' }, h('span', { class: 'lbl' }, 'Rarity'), rarityPills(o.quality, (i) => { o.quality = i; drawForm(); }, false)) : null,

@@ -9,7 +9,7 @@ const FILES = ['core/variant', 'core/nodes', 'core/diff', 'core/zip', 'data/item
 const ctx = vm.createContext({ console, TextEncoder, TextDecoder, atob, localStorage: { getItem: () => null, setItem() {} }, document: {}, window: {}, navigator: {} });
 for (const f of FILES) vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), ctx, { filename: f });
 const E = (code) => vm.runInContext(code, ctx);
-const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, FRAGMENTS, BONES, METAL_FINDS, COIN_BAG, CHEST, FIND_ORDER, OWN_LIMIT, KEEPER_TOOLS, KEEPER_PROPS, countItems, lacking, fragmentSet, boneSet, findSet, clearInventory, bonesOpen, SECRET_COSMETICS, SECRET_ITEMS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
+const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, FRAGMENTS, BONES, METAL_FINDS, COIN_BAG, CHEST, FIND_ORDER, OWN_LIMIT, KEEPER_TOOLS, KEEPER_PROPS, countItems, lacking, fragmentSet, boneSet, findSet, clearInventory, bonesOpen, SECRET_COSMETICS, SECRET_ITEMS, UNSOLD_ITEMS, ITEM_WARNINGS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
 
 const same = (a, b, m) => assert.deepStrictEqual(JSON.parse(JSON.stringify([...a])), JSON.parse(JSON.stringify([...b])), m);
 let passed = 0;
@@ -43,6 +43,8 @@ test('secret lists match the game data', () => {
   same([...X.HIDDEN_COSMETICS].sort(), X.SECRET_COSMETICS.map(s => s.id).sort());
   same(Object.keys(X.GAME_ITEMS).filter(id => X.GAME_ITEMS[id].unobtainable && !X.GAME_ITEMS[id].hidden).sort(), X.SECRET_ITEMS.map(s => s.id).sort());
   for (const s of X.FINDABLE_SECRETS) { assert(X.GAME_ITEMS[s.id] || X.GAME_COSMETICS[s.id], s.id); assert(!(X.GAME_ITEMS[s.id] || {}).unobtainable && !X.HIDDEN_COSMETICS.has(s.id), s.id); }
+  for (const s of X.UNSOLD_ITEMS) assert(X.GAME_ITEMS[s.id] && !X.GAME_ITEMS[s.id].unobtainable, s.id);
+  for (const id of Object.keys(X.ITEM_WARNINGS)) assert(X.GAME_ITEMS[id], id);
   for (const id of X.CONTRIBUTOR_TITLES) assert(X.GAME_COSMETICS[id], id);
   for (const q of X.get(X.freshRoot(), 'quests').m.values()) for (const n of X.val(q, 'rewards')) assert(!X.HIDDEN_COSMETICS.has(n.v) && !X.HIDDEN_COSMETICS.has('s' + n.v.slice(2)), n.v);
 });

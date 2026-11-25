@@ -310,7 +310,7 @@ const UNLOCK_PARTS = [
   ['camp', 'Camp', 'Tier 4, loan paid off'],
   ['cosmetics', 'Cosmetics', 'Everything in the game files, including hidden ones'],
   ['tools', 'Tools', 'Every rod, instrument, chalk, drink and gadget, with full stacks of 99'],
-  ['props', 'Props', 'Every prop, as many as the shop lets you own (4 chairs)'],
+  ['props', 'Props', 'Every prop, as many as the shop lets you own (4 chairs). Placing the Canvas Prop can get you kicked from some servers'],
   ['unused', 'Unused items', 'The 8 leftovers from cut features, see Secret items'],
   ['fragments', 'Fragments', 'Three of each metal detector fragment, enough for all four trades'],
   ['bones', 'Spectral bones', 'All five, and opens the hidden bone shop'],

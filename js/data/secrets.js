@@ -18,6 +18,14 @@ const SECRET_ITEMS = [
   { id: 'fish_deep_testb', note: 'The second deep test fish, a copy of the first.', look: 'Inventory, Creatures' },
   { id: 'fish_deep_testc', note: 'The third deep test fish, a copy of the first.', look: 'Inventory, Creatures' }
 ];
+/* Not marked as unused, but nothing in the game sells or gives it. */
+const UNSOLD_ITEMS = [
+  { id: 'prop_canvas', note: '“Place a canvas for all your chalk desires!” A working prop that no shop sells.', look: 'Props menu' }
+];
+/* Shown wherever the item can be added or edited. */
+const ITEM_WARNINGS = {
+  prop_canvas: 'Placing this can get you kicked. Servers that run Cove kick anyone who places a canvas unless the owner allows it. Use it in your own lobby.'
+};
 /* Secrets any player can get. */
 const FINDABLE_SECRETS = [
   { id: 'fishing_rod_skeleton', how: 'Collect five spectral bones: skull, rib, spine, humerus and femur. Picking up the first one opens a hidden shop that trades the set for this rod.' },
@@ -33,4 +41,4 @@ const FINDABLE_SECRETS = [
   { id: 'pcolor_midnight_special', how: 'Second reward of the Squid quest, with the matching second fur. Octopus gives a pink pair and Coelacanth a stone pair.' },
   { id: 'title_lamedev', how: 'Can come out of a treasure chest. Its description says “due to a bug, this exists now.”' }
 ];
-if (typeof module !== 'undefined') module.exports = { SECRET_COSMETICS, SECRET_ITEMS, FINDABLE_SECRETS };
+if (typeof module !== 'undefined') module.exports = { SECRET_COSMETICS, SECRET_ITEMS, UNSOLD_ITEMS, ITEM_WARNINGS, FINDABLE_SECRETS };

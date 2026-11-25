@@ -28,6 +28,7 @@ function unlockDialog() {
   const parts = Object.fromEntries(UNLOCK_PARTS.map(([k]) => [k, true]));
   const m = modal('Unlock everything', [
     h('p', { class: 'muted' }, 'Only adds or raises. Your outfit is not touched.'),
+    h('p', { class: 'note small' }, h('b', null, 'Canvas Prop: '), ITEM_WARNINGS.prop_canvas),
     h('div', { class: 'optgrid' }, UNLOCK_PARTS.map(([k, label, desc]) => checkbox(h('span', null, h('b', null, label), h('span', { class: 'muted small block' }, desc)), true, v => { parts[k] = v; }))),
     h('div', { class: 'row end' }, button('Cancel', () => m.close(), 'ghost'), button('Unlock', () => { m.close(); askAndUnlock(parts); }, 'primary'))
   ], { wide: true });

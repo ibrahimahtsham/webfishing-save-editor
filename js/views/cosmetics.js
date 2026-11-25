@@ -40,7 +40,7 @@ function CosmeticsView() {
   const accessoryTools = () => {
     const all = idsFor('accessory').filter(isCosmetic), worn = wornIn('accessory').length;
     return h('div', { class: 'accbar' },
-      checkbox('Wear more than 4 (experiment)', st.many, v => { st.many = v; drawGrid(); }),
+      checkbox('Wear more than 4', st.many, v => { st.many = v; drawGrid(); }),
       h('span', { class: 'muted small' }, worn + ' worn'),
       st.many ? button('Wear all ' + all.length, () => wearAccessories('Wear every accessory', all), 'small') : null,
       worn ? button('Take all off', () => wearAccessories('Take off accessories', []), 'small') : null,
