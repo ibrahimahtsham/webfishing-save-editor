@@ -79,11 +79,11 @@ function moveInTab(root, tab, refs, to) {
   const after = list.slice(to).filter(n => !moving.has(String(val(n, 'ref'))));
   setTabOrder(root, tab, [...before, ...pick, ...after]);
 }
-const FISH_GROUPS = ['Creatures_Fish_Freshwater', 'Creatures_Fish_Ocean', 'Creatures_Fish_RainSpecial', 'Creatures_Fish_Alien', 'Creatures_Fish_Void', 'Creatures_Fish_Deep', 'Creatures_WaterTrash', 'Creatures_RodLuck', 'Creatures_MetalDetectLoot', 'Items'];
+const FISH_GROUPS = ['Creatures_Fish_Freshwater', 'Creatures_Fish_Ocean', 'Creatures_Fish_RainSpecial', 'Creatures_Fish_Alien', 'Creatures_Fish_Void', 'Creatures_Fish_Deep', 'Creatures_WaterTrash'];
 const ORDER_OF = new Map(ITEM_ORDER.map((id, i) => [id, i]));
 function kindRank(id) {
   if (!isItem(id)) return 9999; // modded items keep their place at the end
-  if (itemTab(id) === 'fish') return FISH_GROUPS.indexOf(GAME_ITEMS[id].group);
+  if (itemTab(id) === 'fish') return FIND_ORDER.includes(id) ? 100 + FIND_ORDER.indexOf(id) : FISH_GROUPS.indexOf(GAME_ITEMS[id].group);
   return ORDER_OF.has(id) ? ORDER_OF.get(id) : 9000;
 }
 /* Fish: by water, then species, then rarity, then size. Everything else: the fixed list. */
@@ -242,11 +242,47 @@ function completion(root) {
     ['Tools', KEEPER_TOOLS.filter(id => maxed.has(id)).length, KEEPER_TOOLS.length],
     ['Props', KEEPER_PROPS.filter(id => ids.has(id)).length, KEEPER_PROPS.length],
     ['Unused items', UNUSED_ITEMS.filter(id => ids.has(id)).length, UNUSED_ITEMS.length],
+    ['Fragments', fragmentSet(1).length - lacking(root, fragmentSet(1)).length, fragmentSet(1).length],
+    ['Spectral bones', BONES.length - lacking(root, boneSet(1)).length, BONES.length],
+    ['Other finds', findSet().length - lacking(root, findSet()).length, findSet().length],
     ['Quests', questsDone(root), questBoard().length],
     ['Fish collection', fullPlan.length - missingFish(root, fullPlan).length, fullPlan.length],
     ['Rank', Math.min(LIMITS.level, Number(val(root, 'level'))), LIMITS.level],
     ['Camp', Math.min(CAMP_TIERS, Number(val(root, 'loan_level')) + 1), CAMP_TIERS]
   ];
+}
+
+/* ---------- fragments, bones and finds ---------- */
+/* The bone shop only talks to saves with this flag. The game sets it when the first bone is picked up. */
+const BONE_FLAG = 'spectral';
+function bonesOpen(root) { return val(root, 'saved_tags').some(n => n.v === BONE_FLAG); }
+function countItems(root, id, quality = null) {
+  return invOf(root).v.filter(n => val(n, 'id') === id && (quality == null || val(n, 'quality') === quality)).reduce((s, n) => s + Number(val(n, 'count') || 1), 0);
+}
+function collectible(id, quality = 0) { return { id, quality, size: BONES.includes(id) ? 10 : GAME_ITEMS[id].usesSize ? fishAvg(id) : 1 }; }
+const repeat = (n, fn) => Array.from({ length: n }, fn);
+function fragmentSet(sets) { return FRAGMENTS.flatMap(f => repeat(sets * FRAGMENTS_PER_TRADE, () => collectible(f.id))); }
+function boneSet(sets) { return repeat(sets, () => BONES.map(id => collectible(id))).flat(); }
+function findSet() { return [...METAL_FINDS.map(id => collectible(id)), ...COIN_BAG_LEVELS.map(q => collectible(COIN_BAG, q)), collectible(CHEST)]; }
+/* the part of a list that is not owned yet, counting duplicates */
+function lacking(root, list) {
+  const key = (id, q) => id + (id === COIN_BAG ? '|' + q : ''), have = new Map();
+  for (const n of invOf(root).v) { const k = key(val(n, 'id'), val(n, 'quality')); have.set(k, (have.get(k) || 0) + countOf(n)); }
+  return list.filter(x => { const k = key(x.id, x.quality), c = have.get(k) || 0; have.set(k, c - 1); return c <= 0; });
+}
+/* Empty the bag, keeping only the built-in empty hand. */
+function clearInventory(root) {
+  const inv = invOf(root);
+  inv.v = inv.v.filter(n => String(val(n, 'ref')) === '0');
+  for (const n of get(root, 'hotbar').m.values()) setNum(n, 0);
+  const lk = get(root, 'locked_refs');
+  if (lk) lk.v = [];
+}
+/* Nobody is left without a rod. */
+function ensureRod(root) {
+  let rod = invOf(root).v.find(n => val(n, 'id') === 'fishing_rod_simple');
+  if (!rod) [rod] = addItems(root, [{ id: 'fishing_rod_simple' }]);
+  if (rod) setHotbar(root, 0, val(rod, 'ref'));
 }
 
 /* ---------- stacks ---------- */
@@ -274,6 +310,9 @@ const UNLOCK_PARTS = [
   ['tools', 'Tools', 'Every rod, instrument, chalk, drink and gadget, with full stacks of 99'],
   ['props', 'Props', 'One of each prop you lack'],
   ['unused', 'Unused items', 'The 8 leftovers from cut features, see Secret items'],
+  ['fragments', 'Fragments', 'Three of each metal detector fragment, enough for all four trades'],
+  ['bones', 'Spectral bones', 'All five, and opens the hidden bone shop'],
+  ['finds', 'Other finds', 'Metal detector junk, a coin bag of each kind and a treasure chest'],
   ['journal', 'Journal', 'Every fish caught in all six rarities'],
   ['quests', 'Quests', 'One-time quests finished with their rewards, repeating ones at tier 9'],
   ['fish', 'Fish collection', 'All 78 fish in six rarities, smallest and biggest: 936 fish'],
@@ -287,7 +326,9 @@ function toggleInList(arr, id, on) {
 }
 /* Only ever adds or raises. The outfit is not touched; owned items change only by filling their stack, and their place only if organize is on. */
 /* The whole fish set is added, with nothing skipped. Only a save that already holds all 936 needs addFishSet to get another. */
-function unlockEverything(root, parts, { favoriteFish = false, addFishSet = !hasFullCollection(root) } = {}) {
+function unlockEverything(root, parts, { favoriteFish = false, addFishSet, clear = false } = {}) {
+  if (clear) clearInventory(root);
+  const addSet = addFishSet == null ? !hasFullCollection(root) : addFishSet;
   const raise = (key, v) => { const n = get(root, key); if (n && Number(n.v) < v) setNum(n, v); };
   if (parts.money) raise('money', LIMITS.money);
   if (parts.level) raise('level', LIMITS.level);
@@ -319,10 +360,14 @@ function unlockEverything(root, parts, { favoriteFish = false, addFishSet = !has
   if (parts.journal) for (const id of CATCHABLE) recordCatch(root, id, { size: GAME_ITEMS[id].avg, qualities: [0, 1, 2, 3, 4, 5] });
   if (parts.quests) maxQuests(root);
   if (parts.fish) {
-    if (addFishSet) addFish(root, FULL_COLLECTION(), parts.journal);
+    if (addSet) addFish(root, FULL_COLLECTION(), parts.journal);
     if (favoriteFish) favoriteCollection(root);
   }
+  if (parts.fragments) addItems(root, lacking(root, fragmentSet(1)));
+  if (parts.bones) { addItems(root, lacking(root, boneSet(1))); toggleInList(get(root, 'saved_tags'), BONE_FLAG, true); }
+  if (parts.finds) addItems(root, lacking(root, findSet()));
   if (parts.tutorial) setTutorialDone(root, true);
+  if (clear) ensureRod(root);
   if (parts.organize) organizeAll(root);
 }
 

@@ -70,6 +70,6 @@ function Pic(file, cls = 'ic', tint = null) {
 function itemIcon(id, cls = 'ic') {
   const t = thing(id);
   if (!t) return h('span', { class: 'well ' + cls + ' none', 'aria-hidden': 'true' }, '?');
-  if (isItem(id)) return Pic(t.icon, cls);
+  if (isItem(id)) return Pic(t.icon, cls + (/^mdl_/.test(id) ? ' zoom4' : /^wtrash_(diamond|bone)$|^luck_/.test(id) ? ' zoom2' : ''));
   return Pic(t.icon, cls, t.category === 'species' || t.category === 'tail' ? '#8a5a2b' : t.color);
 }

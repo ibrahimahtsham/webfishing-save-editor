@@ -5,11 +5,11 @@
 'use strict';
 const fs = require('fs'), path = require('path'), vm = require('vm'), assert = require('assert');
 const ROOT = path.join(__dirname, '..');
-const FILES = ['core/variant', 'core/nodes', 'core/diff', 'core/zip', 'data/items', 'data/cosmetics', 'data/gear', 'data/secrets', 'data/item-order', 'data/fresh-save', 'app/ui', 'app/catalog', 'app/fish', 'app/actions', 'app/state', 'app/backups', 'app/files', 'app/safety'];
+const FILES = ['core/variant', 'core/nodes', 'core/diff', 'core/zip', 'data/items', 'data/cosmetics', 'data/gear', 'data/secrets', 'data/item-order', 'data/collectibles', 'data/fresh-save', 'app/ui', 'app/catalog', 'app/fish', 'app/actions', 'app/state', 'app/backups', 'app/files', 'app/safety'];
 const ctx = vm.createContext({ console, TextEncoder, TextDecoder, atob, localStorage: { getItem: () => null, setItem() {} }, document: {}, window: {}, navigator: {} });
 for (const f of FILES) vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), ctx, { filename: f });
 const E = (code) => vm.runInContext(code, ctx);
-const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, SECRET_COSMETICS, SECRET_ITEMS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
+const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, FRAGMENTS, BONES, METAL_FINDS, COIN_BAG, CHEST, FIND_ORDER, KEEPER_TOOLS, KEEPER_PROPS, countItems, lacking, fragmentSet, boneSet, findSet, clearInventory, bonesOpen, SECRET_COSMETICS, SECRET_ITEMS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
 
 const same = (a, b, m) => assert.deepStrictEqual(JSON.parse(JSON.stringify([...a])), JSON.parse(JSON.stringify([...b])), m);
 let passed = 0;
@@ -33,6 +33,11 @@ test('journal covers the 78 fish a new save lists', () => {
 
 test('every item and prop has a place in the order', () => {
   same([...X.ITEM_ORDER].sort(), Object.keys(X.GAME_ITEMS).filter(id => ['tool', 'furniture'].includes(X.GAME_ITEMS[id].category)).sort());
+});
+test('unlock covers every item in the game except the built-in hand', () => {
+  const r = X.freshRoot(); X.unlockEverything(r, parts);
+  const have = new Set(X.get(r, 'inventory').v.map(n => X.val(n, 'id')));
+  same(Object.keys(X.GAME_ITEMS).filter(id => !have.has(id)), []);
 });
 test('secret lists match the game data', () => {
   same([...X.HIDDEN_COSMETICS].sort(), X.SECRET_COSMETICS.map(s => s.id).sort());
@@ -87,8 +92,8 @@ for (const [name, root0] of saves) {
   });
   test(name + ': unlock skips the tutorial and adds no other flag', () => {
     const r = fresh(); X.unlockEverything(r, parts); assert(X.tutorialDone(r));
-    const other = (root) => X.val(root, 'saved_tags').map(n => n.v).filter(x => x !== 'first_join');
-    same(other(r), other(root0));
+    const other = (root) => X.val(root, 'saved_tags').map(n => n.v).filter(x => x !== 'first_join' && x !== 'spectral');
+    same(other(r), other(root0)); assert(X.bonesOpen(r));
   });
   test(name + ': unlock adds all 936 fish even when some are owned, and only once by default', () => {
     const r = fresh(), all = X.FULL_COLLECTION(); X.removeRefs(r, refs(r, 'fish')); X.addItems(r, all.slice(0, 5));
@@ -101,7 +106,8 @@ for (const [name, root0] of saves) {
     const base = fresh(); if (X.hasFullCollection(base)) X.removeRefs(base, refs(base, 'fish'));
     const f = open('webfishing_save_slot_0.sav', base), old = X.favoriteSet(base), ownFish = new Set(refs(base, 'fish'));
     X.unlockEverything(f.root, parts, { favoriteFish: true });
-    const favs = X.favoriteSet(f.root), added = refs(f.root, 'fish').filter(x => !ownFish.has(x));
+    const favs = X.favoriteSet(f.root), tradable = new Set(X.tabItems(f.root, 'fish').filter(n => X.FIND_ORDER.includes(X.val(n, 'id'))).map(n => String(X.val(n, 'ref')))), added = refs(f.root, 'fish').filter(x => !ownFish.has(x) && !tradable.has(x));
+    for (const x of tradable) assert.strictEqual(favs.has(x), old.has(x), 'fragments and bones stay tradable');
     assert.strictEqual(added.length, 936 + 3); assert(added.every(x => favs.has(x))); assert([...old].every(x => favs.has(x)));
     assert.strictEqual(favs.size, X.val(f.root, 'locked_refs').length);
     for (const x of ownFish) assert.strictEqual(favs.has(x), old.has(x));
@@ -142,6 +148,32 @@ for (const [name, root0] of saves) {
     }
     const off = fresh(); X.unlockEverything(off, { ...parts, unused: false });
     for (const s of X.SECRET_ITEMS) assert.strictEqual(X.get(off, 'inventory').v.filter(n => X.val(n, 'id') === s.id).length, X.get(root0, 'inventory').v.filter(n => X.val(n, 'id') === s.id).length, s.id);
+  });
+  test(name + ': unlock tops up fragments, bones and finds exactly once', () => {
+    const r = fresh(); X.unlockEverything(r, parts);
+    for (const list of [X.fragmentSet(1), X.boneSet(1), X.findSet()]) assert.strictEqual(X.lacking(r, list).length, 0);
+    const before = X.get(r, 'inventory').v.length; X.unlockEverything(r, parts); assert.strictEqual(X.get(r, 'inventory').v.length, before);
+    for (const x of X.FRAGMENTS) assert.strictEqual(X.countItems(r, x.id), Math.max(3, X.countItems(root0, x.id)));
+    const off = fresh(); X.unlockEverything(off, { ...parts, fragments: false, bones: false, finds: false });
+    for (const id of [...X.FIND_ORDER, X.CHEST]) assert.strictEqual(X.countItems(off, id), X.countItems(root0, id), id);
+    assert.strictEqual(X.bonesOpen(off), X.bonesOpen(root0));
+  });
+  test(name + ': clearing first leaves only what unlock adds, and keeps everything that is not the bag', () => {
+    const f = open('webfishing_save_slot_0.sav', fresh());
+    X.unlockEverything(f.root, parts, { clear: true, favoriteFish: true });
+    assert.deepStrictEqual(stops(f).length, 0);
+    for (const [label, a, b] of X.completion(f.root)) assert.strictEqual(a, b, label);
+    const kept = X.get(root0, 'inventory').v.filter(n => String(X.val(n, 'ref')) === '0').length, all = X.get(f.root, 'inventory').v;
+    assert.strictEqual(all.length, kept + X.KEEPER_TOOLS.length + X.KEEPER_PROPS.length + 8 + 936 + 12 + 5 + 11);
+    const old = new Set(X.get(root0, 'inventory').v.map(n => String(X.val(n, 'ref'))).filter(x => x !== '0'));
+    assert(all.every(n => !old.has(String(X.val(n, 'ref')))));
+    const live = new Set(all.map(n => String(X.val(n, 'ref')))); assert([...X.favoriteSet(f.root)].every(x => live.has(x)));
+    const hot = X.get(f.root, 'hotbar').m.get('0'); assert.strictEqual(X.val(all.find(n => String(X.val(n, 'ref')) === String(hot.v)), 'id'), 'fishing_rod_simple');
+    for (const k of ['cosmetics_equipped', 'muted_players', 'guitar_shapes', 'saved_aqua_fish', 'fish_caught']) assert.strictEqual(X.diff(X.get(root0, k), X.get(f.root, k)).length, 0, k);
+  });
+  test(name + ': clearing with everything else off still leaves a rod', () => {
+    const r = fresh(); X.unlockEverything(r, {}, { clear: true });
+    same(X.tabItems(r, 'tool').map(n => X.val(n, 'id')), ['fishing_rod_simple']);
   });
   test(name + ': unlock never lowers a number', () => {
     const r = fresh(); X.unlockEverything(r, parts);

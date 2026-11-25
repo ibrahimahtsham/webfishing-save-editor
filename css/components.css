@@ -106,3 +106,5 @@ input[type=checkbox],input[type=radio]{flex:none}
 .where{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:8px 12px;flex-wrap:wrap} .path{word-break:break-all}
 .picklist{display:flex;flex-direction:column;gap:10px}
 .pick{display:flex;gap:14px;align-items:center;text-align:left;font:inherit;color:var(--text);border:0;padding:10px;cursor:pointer} .pick:hover{background:var(--surface2)}
+/* the game draws these very small in the middle of their picture */
+.well.zoom2,.well.zoom4{overflow:hidden} .well.zoom2 img{transform:scale(2)} .well.zoom4 img{transform:scale(3.6)}

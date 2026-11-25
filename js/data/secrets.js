@@ -26,7 +26,7 @@ const FINDABLE_SECRETS = [
   { id: 'hat_tophat', how: 'Trade three Hat Fragments from the metal detector.' },
   { id: 'accessory_monocle', how: 'Trade three Monocle Fragments from the metal detector.' },
   { id: 'accessory_watch', how: 'Trade three Watch Fragments from the metal detector.' },
-  { id: 'accessory_sword', how: 'Trade three Sword Fragments from the metal detector.' },
+  { id: 'accessory_sword', how: 'Trade three Blade Fragments from the metal detector.' },
   { id: 'accessory_ring', how: 'Buy a Ring Box and open it.' },
   { id: 'fishing_rod_travelers', how: 'Catch one of every fish in the journal. The shop then sells it.' },
   { id: 'fishing_rod_collectors_alpha', how: 'Catch every fish in Alpha. The shop then sells it. Each rarity opens its own Collector’s rod.' },

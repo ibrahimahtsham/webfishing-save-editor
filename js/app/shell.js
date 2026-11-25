@@ -3,7 +3,7 @@
 
 const NAV = [
   ['progress', 'Progress', 'save'], ['inventory', 'Inventory', 'save'], ['fish', 'Fish maker', 'save'], ['journal', 'Journal', 'save'],
-  ['cosmetics', 'Cosmetics', 'save'], ['secrets', 'Secret items', null], ['quests', 'Quests', 'save'], ['gear', 'Gear and bait', 'save'], ['settings', 'Game settings', 'general']
+  ['cosmetics', 'Cosmetics', 'save'], ['secrets', 'Secret items', null], ['collect', 'Fragments and bones', 'save'], ['quests', 'Quests', 'save'], ['gear', 'Gear and bait', 'save'], ['settings', 'Game settings', 'general']
 ];
 const NAV_KEYS = {
   progress: ['money', 'level', 'xp', 'fish_caught', 'cash_total', 'loan_level', 'loan_left', 'voice_pitch', 'voice_speed'],
@@ -12,7 +12,7 @@ const NAV_KEYS = {
   gear: ['rod_power', 'rod_speed', 'rod_chance', 'rod_luck', 'buddy_level', 'buddy_speed', 'max_bait', 'bait_inv', 'bait_selected', 'bait_unlocked', 'lure_unlocked', 'lure_selected']
 };
 const VIEWS = () => ({
-  home: Landing, progress: ProgressView, inventory: InventoryView, fish: FishView, journal: JournalView, cosmetics: CosmeticsView, secrets: SecretsView, quests: QuestsView,
+  home: Landing, progress: ProgressView, inventory: InventoryView, fish: FishView, journal: JournalView, cosmetics: CosmeticsView, secrets: SecretsView, collect: CollectiblesView, quests: QuestsView,
   gear: GearView, settings: SettingsView, changes: ChangesView, backups: BackupsView, fresh: FreshView, raw: RawView
 });
 

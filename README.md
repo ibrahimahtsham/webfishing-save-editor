@@ -25,9 +25,9 @@ No save handy? The page opens with a sample game, so you can look around first. 
 
 ### Unlock everything
 
-One button fills in what you are missing: money, rank, rod and buddy upgrades, bait, lures, camp, cosmetics, tools, props, unused items, the journal, quests and a collection of 936 fish. It fills stacks to 99, organizes your inventory and skips the tutorial. Your outfit stays as it is, and you can untick any part.
+One button fills in what you are missing: money, rank, rod and buddy upgrades, bait, lures, camp, cosmetics, tools, props, fragments, spectral bones, unused items, the journal, quests and a collection of 936 fish. It fills stacks to 99, organizes your inventory and skips the tutorial. Your outfit stays as it is, and you can untick any part.
 
-It asks whether to favorite the fish, because favorites cannot be sold in the shop, not even with Sell all.
+It asks whether to favorite the fish, because favorites cannot be sold in the shop, not even with Sell all. On a save with progress it can also clear your inventory first, so you start with a tidy bag.
 
 ### Rearrange your inventory
 
@@ -52,6 +52,12 @@ A live preview with the game's own faces, hats and colours. The body is a drawin
 Cosmetics the game never gives out, leftovers from cut features, and secrets you can find yourself.
 
 ![Secret items page](docs/screenshots/secrets.png)
+
+### Trade parts
+
+Add the fragments for the dock shop trades and the bones for the Spectral Rod, to use yourself or mail to a friend.
+
+![Fragments and bones page](docs/screenshots/fragments.png)
 
 ### And the rest
 
@@ -80,6 +86,7 @@ Backups live in your browser, so clearing site data removes them. Download the o
 - The game may award **Steam achievements** for money, rank and journal.
 - **Do not mail unused items.** In the game's code, mailing one turns it into a salmon.
 - The game lets you favorite about 100 items by hand. It keeps more if they come from a save, but you cannot add others in the game until you are back to 100.
+- **Fragments and bones are never favorited**, because the game does not let you trade or mail favorites. Sell all would sell them.
 - Contributor titles show as “Scout” on accounts that are not contributors, so Unlock everything leaves them out.
 
 ## Privacy
