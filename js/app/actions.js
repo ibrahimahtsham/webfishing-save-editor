@@ -41,6 +41,10 @@ function setFavorites(root, refs) {
   const a = ensure(root, 'locked_refs', () => N.arr()), have = favoriteSet(root);
   for (const ref of refs) if (!have.has(String(ref))) { have.add(String(ref)); a.v.push(N.int(Number(ref))); }
 }
+function clearFavorites(root, refs) {
+  const a = get(root, 'locked_refs'), gone = new Set(refs.map(String));
+  if (a) a.v = a.v.filter(n => !gone.has(String(n.v)));
+}
 function setFavorite(root, ref, on) {
   const a = ensure(root, 'locked_refs', () => N.arr());
   a.v = a.v.filter(x => String(x.v) !== String(ref));

@@ -10,7 +10,7 @@ function InventoryView() {
   const st = S.inv, root = f.root;
   const host = h('div', { class: 'gridhost' }), detail = h('aside', { class: 'detail px', 'aria-live': 'polite' }), bulk = h('div'), hot = h('div', { class: 'hotbar' }), counter = h('span', { class: 'muted small' });
   const edit = (label, fn, opts) => { commit(fk, label, fn, { render: false, ...opts }); drawAll(); };
-  const drawAll = () => { drawHot(); drawBulk(); drawGrid(); drawDetail(); };
+  const drawAll = () => { favs = favoriteSet(root); drawHot(); drawBulk(); drawGrid(); drawDetail(); };
 
   let favs = new Set();
   const list = () => tabItems(root, st.tab);
@@ -132,8 +132,8 @@ function InventoryView() {
     addKids(bulk, h('div', { class: 'bulk px' }, h('b', null, refs.length + ' selected'),
       !fishTab ? null : rarityPills(-1, (i) => edit('Set rarity', () => refs.forEach(r => { const n = findByRef(r); if (n) setNum(get(n, 'quality'), i); })), false),
       button('Move to front', () => move(refs, 0), 'small'), button('Move to end', () => move(refs, list().length), 'small'),
-      button('Favorite', () => edit('Favorite items', () => setFavorites(root, refs)), 'small'),
-      button('Select all shown', () => { shown().forEach(n => st.sel.add(refOf(n))); drawBulk(); drawGrid(); }, 'small'),
+      refs.some(r => !favs.has(r)) ? button('Favorite', () => edit('Favorite items', () => setFavorites(root, refs)), 'small') : null,
+      refs.some(r => favs.has(r)) ? button('Unfavorite', () => edit('Unfavorite items', () => clearFavorites(root, refs)), 'small') : null,
       button('Clear', () => { st.sel.clear(); drawBulk(); drawGrid(); }, 'small ghost'),
       button('Delete ' + refs.length, () => deleteItems(refs), 'small danger')));
   };
@@ -157,6 +157,8 @@ function InventoryView() {
     const name = h('input', { type: 'text', value: val(n, 'custom_name') || '', maxlength: LIMITS.nameLength, placeholder: 'No custom name', onchange: (e) => edit('Rename item', () => { ensure(n, 'custom_name', () => N.str('')).v = cleanName(e.target.value); }) });
     const price = data && !data.noSell ? 'Sells for $' + fmtNum(itemWorth(id, numOf(sizeN), q)) + '. ' : '';
     addKids(detail, head,
+      h('div', { class: 'field' }, h('span', { class: 'lbl' }, favs.has(ref) ? 'Favorite: cannot be sold, traded or mailed' : 'Not a favorite'),
+        h('div', null, button(favs.has(ref) ? 'Unfavorite' : 'Favorite', () => edit(favs.has(ref) ? 'Unfavorite item' : 'Favorite item', () => setFavorite(root, ref, !favs.has(ref))), 'small'))),
       data && data.noRename ? null : field('Custom name', name, 'The game adds “(edit)” after it.'),
       st.tab !== 'fish' ? null : h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Rarity'), rarityPills(q, (i) => edit('Set rarity', () => setNum(get(n, 'quality'), i)), false)),
       h('div', { class: 'two' },
@@ -167,7 +169,6 @@ function InventoryView() {
         button('First', () => move([ref], 0), 'small', { disabled: pos === 0 }), button('Earlier', () => move([ref], pos - 1), 'small', { disabled: pos === 0 }),
         button('Later', () => move([ref], pos + 2), 'small', { disabled: pos === last }), button('Last', () => move([ref], last + 1), 'small', { disabled: pos === last }))) : null,
       h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Hotbar'), h('div', { class: 'pills' }, [-1, 0, 1, 2, 3, 4].map(i => h('button', { type: 'button', class: 'pill' + (hotbarSlotOf(root, ref) === i ? ' on' : ''), 'aria-pressed': hotbarSlotOf(root, ref) === i ? 'true' : 'false', onclick: () => edit('Set hotbar slot', () => setHotbar(root, i, Number(ref))) }, i < 0 ? 'None' : i + 1)))),
-      checkbox('Favorite (cannot be sold by accident)', isFavorite(root, ref), v => edit('Toggle favorite', () => setFavorite(root, ref, v))),
       h('div', { class: 'row end' },
         button('Duplicate', () => edit('Duplicate item', () => {
           const c = clone(n), inv = invOf(root), r = newRef(refSet(root));
@@ -188,7 +189,7 @@ function InventoryView() {
   drawAll();
   return h('div', { class: 'page wide' }, pageHead('Inventory', 'Shown in the order the game shows it. Drag to rearrange.', button('Add item', () => addItemDialog(), 'primary'), button('Organize everything', () => edit('Organize inventory', () => organizeAll(root)), '', { title: 'Puts each kind of item together, in every tab' }), button('Make a fish', () => go('fish'))),
     h('div', { class: 'hotbar-wrap' }, h('span', { class: 'muted small' }, 'Hotbar'), hot), tabsHost,
-    h('div', { class: 'toolbar' }, search, counter, h('span', { class: 'spacer' }), h('span', { class: 'muted small' }, 'Sort this tab by'), sortSel,
+    h('div', { class: 'toolbar' }, search, counter, button('Select all', () => { shown().forEach(n => st.sel.add(refOf(n))); drawBulk(); drawGrid(); }, 'small', { title: 'Select everything shown, to favorite, unfavorite, move or delete it' }), h('span', { class: 'spacer' }), h('span', { class: 'muted small' }, 'Sort this tab by'), sortSel,
       checkbox('favorites first', false, v => { favFirst = v; }), button('Sort', () => edit('Sort ' + ITEM_TABS.find(t => t[0] === st.tab)[1].toLowerCase(), () => sortTab(root, st.tab, sortSel.value, favFirst)), 'small')),
     bulk, h('div', { class: 'split' }, host, detail));
 }

@@ -21,9 +21,12 @@ function CollectiblesView() {
       edit(label, () => make(k), 'Added ' + plural(k, 'set') + '.');
     }, 'primary'));
   };
+  const favs = favoriteSet(root), tradable = new Set([...FRAGMENTS.map(x => x.id), ...BONES]);
+  const hearted = invOf(root).v.filter(n => tradable.has(val(n, 'id')) && favs.has(String(val(n, 'ref')))).map(n => String(val(n, 'ref')));
   const open = bonesOpen(root), hasRod = countItems(root, 'fishing_rod_skeleton') > 0;
   return h('div', { class: 'page' }, pageHead('Fragments and bones', 'Things you trade in, or mail to a friend. They go in Creatures.'),
-    h('p', { class: 'note' }, 'Everything you add is favorited, so Sell all cannot take it. Before you trade or mail one, unfavorite it in the game with right-click.'),
+    h('div', { class: 'note' }, h('p', null, 'Everything you add is favorited, so Sell all cannot take it. Favorites cannot be traded or mailed either, so unfavorite them first: here, or in the game with right-click.'),
+      hearted.length ? button('Unfavorite all ' + plural(hearted.length, 'fragment and bone', 'fragments and bones'), () => edit('Unfavorite fragments and bones', () => clearFavorites(root, hearted), 'Unfavorited. Sell all can sell them now.'), 'small') : null),
     card('Metal detector fragments', h('p', { class: 'muted' }, 'Three of a kind plus $25 at the dock shop buys the item. One set is three of each, enough for all four.'),
       sets('Add full sets', k => addItems(root, fragmentSet(k))),
       FRAGMENTS.map(x => row(x.id, 'Three buy the ' + nameOf(x.gives) + (val(root, 'cosmetics_unlocked').some(n => n.v === x.gives) ? ', which you already own' : '')))),

@@ -9,7 +9,7 @@ const FILES = ['core/variant', 'core/nodes', 'core/diff', 'core/zip', 'data/item
 const ctx = vm.createContext({ console, TextEncoder, TextDecoder, atob, localStorage: { getItem: () => null, setItem() {} }, document: {}, window: {}, navigator: {} });
 for (const f of FILES) vm.runInContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), ctx, { filename: f });
 const E = (code) => vm.runInContext(code, ctx);
-const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, FRAGMENTS, BONES, METAL_FINDS, COIN_BAG, CHEST, FIND_ORDER, OWN_LIMIT, KEEPER_TOOLS, KEEPER_PROPS, countItems, lacking, fragmentSet, boneSet, findSet, clearInventory, bonesOpen, SECRET_COSMETICS, SECRET_ITEMS, UNSOLD_ITEMS, ITEM_WARNINGS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
+const X = E('({ parseFile, serializeFile, clone, diff, get, val, N, readSaveFile, checkSave, unlockEverything, completion, startFresh, freshRoot, setTabOrder, moveInTab, sortTab, tabItems, addItems, removeRefs, planCollection, sizeName, SIZE_PRESETS, SIZE_NAMES, biggestNatural, atRatio, CATCHABLE, ALL_FISH, GAME_ITEMS, GAME_COSMETICS, UNLOCK_PARTS, SORTS, LIMITS, JOURNAL_SECTIONS, summarize, recordCatch, setHotbar, hotbarSlotOf, setFavorite, isFavorite, favoriteSet, hasFullCollection, organizeAll, ITEM_ORDER, FRAGMENTS, BONES, METAL_FINDS, COIN_BAG, CHEST, FIND_ORDER, OWN_LIMIT, KEEPER_TOOLS, KEEPER_PROPS, countItems, lacking, fragmentSet, boneSet, findSet, clearInventory, clearFavorites, bonesOpen, SECRET_COSMETICS, SECRET_ITEMS, UNSOLD_ITEMS, ITEM_WARNINGS, FINDABLE_SECRETS, HIDDEN_COSMETICS, CONTRIBUTOR_TITLES, maxQuests, questsDone, questBoard, tutorialDone, FULL_COLLECTION, missingFish, orderChanged, makeZip, sameBytes, hashBytes, itemTab, USABLE_COSMETICS })');
 
 const same = (a, b, m) => assert.deepStrictEqual(JSON.parse(JSON.stringify([...a])), JSON.parse(JSON.stringify([...b])), m);
 let passed = 0;
@@ -265,6 +265,11 @@ test('wearing every accessory is allowed and reads back', () => {
   X.get(f.root, 'cosmetics_equipped', 'accessory').v = ids.map(id => X.N.str(id));
   same(stops(f), []); assert.strictEqual(X.checkSave(f).issues.filter(i => /accessories are worn/.test(i.text)).length, 1);
   same(X.val(X.parseFile(X.serializeFile(f.root, f.tail)).root, 'cosmetics_equipped', 'accessory').map(n => n.v), ids);
+});
+test('unfavoriting removes only what was asked', () => {
+  const r = X.freshRoot(), made = X.addItems(r, [{ id: 'guitar' }, { id: 'tambourine' }, { id: 'ringbox' }]).map(n => String(X.val(n, 'ref')));
+  X.clearFavorites(r, made.slice(0, 2)); same([...X.favoriteSet(r)], [made[2]]);
+  X.clearFavorites(r, ['999']); assert.strictEqual(X.favoriteSet(r).size, 1);
 });
 test('hotbar and favorites follow removal', () => {
   const r = X.freshRoot(), [n] = X.addItems(r, [{ id: 'guitar' }]), ref = X.val(n, 'ref');

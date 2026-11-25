@@ -20,7 +20,7 @@ function askAndUnlock(parts) {
     mine.length ? checkbox(h('span', null, h('b', null, 'Clear my inventory first'), note('Start with an empty bag, then add everything. Your outfit, money, journal and the rest stay.')), o.clear, v => { o.clear = v; draw(); }) : null,
     o.clear ? h('p', { class: 'issue stop' }, 'This removes all ' + plural(mine.length, 'item') + (extra ? ', including ' + extra : '') + '. That means keepsakes and fish you caught too. You can undo it, and your original stays in Backups.') : null,
     parts.fish && owned && !o.clear ? checkbox(h('span', null, h('b', null, 'Add another 936 fish'), note('This save already has them all.')), o.another, v => { o.another = v; }) : null,
-    h('p', { class: 'muted small' }, 'Everything added is favorited, so it cannot be sold by accident, not even with Sell all. To sell, trade or mail something, unfavorite it in the game with right-click.'),
+    h('p', { class: 'muted small' }, 'Everything added is favorited, so it cannot be sold by accident, not even with Sell all. To sell, trade or mail something, unfavorite it in Inventory here, or in the game with right-click.'),
     h('div', { class: 'row wrap end' }, button('Cancel', () => m.close(), 'ghost'),
       button(o.clear ? 'Clear and unlock' : 'Unlock everything', () => {
         m.close();

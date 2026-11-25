@@ -87,7 +87,7 @@ Backups live in your browser, so clearing site data removes them. Download the o
 - **Placing the Canvas Prop can get you kicked.** Servers that run Cove kick anyone who places a canvas unless the owner allows it. Use it in your own lobby.
 - **Do not mail unused items.** In the game's code, mailing one turns it into a salmon.
 - The game lets you favorite about 100 items by hand. It keeps more if they come from a save, but you cannot add others in the game until you are back to 100.
-- **Everything the tool adds is favorited.** To sell, trade or mail one of those items, unfavorite it in the game with right-click.
+- **Everything the tool adds is favorited.** To sell, trade or mail one of those items, unfavorite it in the Inventory page, or in the game with right-click.
 - Contributor titles show as “Scout” on accounts that are not contributors, so Unlock everything leaves them out.
 
 ## Privacy
