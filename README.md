@@ -17,7 +17,7 @@ Built for WEBFISHING 1.12.
 ## How it protects your save
 
 - A byte-for-byte copy of every file you open is kept in *Backups* before you can edit it.
-- The edited file cannot be downloaded until you have downloaded a backup of the original and confirmed the game is closed.
+- The edited file cannot be downloaded until you have downloaded a backup of the original (or chosen to skip it) and confirmed the game is closed.
 - Every save is written, read back and compared, and checked for things that would crash the game.
 - A file that cannot be rewritten exactly is opened read-only.
 - Undo, a full list of changes, and a warning before unsaved edits are lost.

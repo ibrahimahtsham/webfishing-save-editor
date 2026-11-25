@@ -1,5 +1,5 @@
 'use strict';
-/* Writing a file. The edited file cannot be downloaded until a backup of the original has been. */
+/* Writing a file. The backup of the original has to be downloaded, or skipped on purpose, first. */
 
 const GAME_DIR = '%AppData%\\Godot\\app_userdata\\webfishing_2_newver';
 function copyPath() {
@@ -12,6 +12,7 @@ async function downloadBackup(f) {
   const rec = { kind: f.kind, slot: f.slot, added: Date.now() };
   saveBlob(f.u8, backupName(rec));
   f.backedUp = true;
+  f.skipBackup = false;
   if (f.vaultId) await Vault.patch(f.vaultId, { downloaded: true }).catch(() => {});
   toast('Backup downloaded. Keep it somewhere safe.');
 }
@@ -25,15 +26,20 @@ function saveDialog(fk) {
   let closed = false, slot = f.slot;
   const body = h('div', { class: 'savesteps' });
   const draw = () => {
-    const ready = !stops.length && f.backedUp && closed && (fk === 'general' || slot != null);
+    const ready = !stops.length && (f.backedUp || f.skipBackup) && closed && (fk === 'general' || slot != null);
     const step = (done, title, ...kids) => h('section', { class: 'sstep' + (done ? ' done' : '') }, h('span', { class: 'tick', 'aria-hidden': 'true' }, done ? '✓' : ''), h('div', { class: 'grow' }, h('h3', null, title), kids));
     put(body, 
       step(!stops.length, stops.length ? 'This file is not safe to save' : 'Safety check passed',
         stops.map(i => h('p', { class: 'issue stop' }, i.text)),
         warns.length ? h('details', { open: warns.length < 4 }, h('summary', null, plural(warns.length, 'thing') + ' to know'), warns.map(i => h('p', { class: 'issue warn' }, i.text))) : stops.length ? null : h('p', { class: 'muted small' }, 'The finished file was written, read back and compared.')),
-      step(f.backedUp, f.backedUp ? 'Backup downloaded' : 'Download a backup of your original',
-        h('p', { class: 'muted small' }, f.vaultError ? 'This browser could not keep its own copy (' + f.vaultError + '), so this download matters.' : 'The original is also kept in Backups in this browser, but browsers can be cleared. A file on your computer cannot.'),
-        button(f.backedUp ? 'Download it again' : 'Download backup', () => downloadBackup(f).then(draw), f.backedUp ? 'small' : 'primary')),
+      f.skipBackup && !f.backedUp
+        ? step(true, 'Backup download skipped',
+          h('p', { class: f.vaultError ? 'issue warn' : 'muted small' }, f.vaultError ? 'This browser could not keep a copy either (' + f.vaultError + '), so there will be no backup at all.' : 'The original is still kept in Backups in this browser.'),
+          button('Download it after all', () => downloadBackup(f).then(draw), 'small'))
+        : step(f.backedUp, f.backedUp ? 'Backup downloaded' : 'Download a backup of your original',
+          h('p', { class: 'muted small' }, f.vaultError ? 'This browser could not keep its own copy (' + f.vaultError + '), so this download is the only backup.' : 'The original is also kept in Backups in this browser, but browsers can be cleared. A file on your computer cannot.'),
+          h('div', { class: 'row wrap' }, button(f.backedUp ? 'Download it again' : 'Download backup', () => downloadBackup(f).then(draw), f.backedUp ? 'small' : 'primary'),
+            f.backedUp ? null : button('Skip the backup', () => { f.skipBackup = true; draw(); }, 'ghost'))),
       step(closed, 'Close the game', checkbox('WEBFISHING is fully closed. If it is open, it will overwrite the edited file.', closed, v => { closed = v; draw(); })),
       fk === 'save' ? step(slot != null, 'Save into', h('select', { 'aria-label': 'Save slot', onchange: e => { slot = e.target.value === '' ? null : e.target.value; draw(); } },
         f.slot == null ? h('option', { value: '', selected: slot == null }, 'Choose a slot') : null,

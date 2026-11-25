@@ -4,7 +4,7 @@ function Landing() {
   const pick = () => $('#picker').click();
   return h('div', { class: 'landing' },
     h('h1', null, 'Unlock or edit your WEBFISHING save'),
-    h('p', { class: 'lede' }, 'Start with your own save so your character, outfit and progress stay yours. A backup is made before anything can change.'),
+    h('p', { class: 'lede' }, 'Start with your own save so your character, outfit and progress stay yours. A copy is kept in this browser before anything can change.'),
     h('button', { type: 'button', class: 'drop px', id: 'dropzone', onclick: pick },
       h('span', { class: 'drop-title' }, 'Drop your save here'),
       h('span', { class: 'muted' }, 'or click to choose it. You can add several files at once.'),
