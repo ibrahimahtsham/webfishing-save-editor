@@ -1,0 +1,20 @@
+/* Colours. --paper sits behind every picture: pale water, so both dark ink and cream art show up. */
+:root{
+  --bg:#0f1c24; --surface:#162832; --surface2:#1e3643; --line:#33505f; --text:#e9f2ee; --muted:#9bb2b8;
+  --accent:#ff5a3c; --accent-ink:#1b0a06; --water:#58c7cf; --good:#8fd68a; --warn:#ffcf5c; --bad:#ff8a7a; --gold:#ffd166;
+  --r0:#a7b6b2; --r1:#6ec6ff; --r2:#7ee0a1; --r3:#c9a0ff; --r4:#ffd166; --r5:#ff7a8a;
+  --paper:#a9c7c0; --ink:#101c31;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#e7f0ee; --surface:#fbfdfc; --surface2:#dcebe8; --line:#8fb0aa; --text:#122428; --muted:#4d666c;
+  --accent:#d63a1c; --accent-ink:#ffffff; --water:#0f7f89; --good:#2c7a34; --warn:#8a6100; --bad:#b3261e; --gold:#8a6100;
+  --r0:#6d7f7b; --r1:#1b78b8; --r2:#25825a; --r3:#7a45c2; --r4:#a87400; --r5:#c4304a; color-scheme:light;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#e7f0ee; --surface:#fbfdfc; --surface2:#dcebe8; --line:#8fb0aa; --text:#122428; --muted:#4d666c;
+    --accent:#d63a1c; --accent-ink:#ffffff; --water:#0f7f89; --good:#2c7a34; --warn:#8a6100; --bad:#b3261e; --gold:#8a6100;
+    --r0:#6d7f7b; --r1:#1b78b8; --r2:#25825a; --r3:#7a45c2; --r4:#a87400; --r5:#c4304a; color-scheme:light;
+  }
+}

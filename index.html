@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tackle Box, a WEBFISHING save editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs id="tints"></defs></svg>
+<div id="app"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="veil">Drop to open</div>
+<button id="theme" class="btn ghost small" type="button" aria-label="Switch light or dark theme">Light / dark</button>
+<input id="picker" type="file" accept=".sav,.backup" multiple hidden>
+<noscript>This editor needs JavaScript.</noscript>
+
+<!-- Plain scripts, not modules, so the page also works when opened straight from disk. Order matters. -->
+<script src="js/core/variant.js"></script>
+<script src="js/core/nodes.js"></script>
+<script src="js/core/diff.js"></script>
+<script src="js/core/zip.js"></script>
+<script src="js/data/items.js"></script>
+<script src="js/data/cosmetics.js"></script>
+<script src="js/data/gear.js"></script>
+<script src="js/data/secrets.js"></script>
+<script src="js/data/item-order.js"></script>
+<script src="js/data/fresh-save.js"></script>
+<script src="js/app/dom.js"></script>
+<script src="js/app/ui.js"></script>
+<script src="js/app/catalog.js"></script>
+<script src="js/app/fish.js"></script>
+<script src="js/app/actions.js"></script>
+<script src="js/app/state.js"></script>
+<script src="js/app/backups.js"></script>
+<script src="js/app/files.js"></script>
+<script src="js/app/safety.js"></script>
+<script src="js/app/doll.js"></script>
+<script src="js/app/save-dialog.js"></script>
+<script src="js/app/unlock-dialog.js"></script>
+<script src="js/views/start.js"></script>
+<script src="js/views/simple.js"></script>
+<script src="js/views/progress.js"></script>
+<script src="js/views/inventory.js"></script>
+<script src="js/views/fish-maker.js"></script>
+<script src="js/views/journal.js"></script>
+<script src="js/views/cosmetics.js"></script>
+<script src="js/views/secrets.js"></script>
+<script src="js/views/quests.js"></script>
+<script src="js/views/gear.js"></script>
+<script src="js/views/settings.js"></script>
+<script src="js/views/changes.js"></script>
+<script src="js/views/backups.js"></script>
+<script src="js/views/fresh.js"></script>
+<script src="js/views/raw.js"></script>
+<script src="js/app/shell.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

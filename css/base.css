@@ -1,0 +1,22 @@
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:15px/1.5 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;font-variant-ligatures:none}
+h1,h2,h3,h4,.brand-name,.btn,.nav,.drop-title{font-family:"Pixelify Sans","Atkinson Hyperlegible",system-ui,sans-serif}
+h1{font-size:30px;line-height:1.15;margin:0 0 4px;font-weight:600}
+h2{font-size:22px;margin:0;font-weight:600}
+h3{font-size:18px;margin:0 0 10px;font-weight:600}
+h4{font-size:16px;margin:14px 0 6px}
+p{margin:0 0 10px}
+code{font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:.88em}
+.muted{color:var(--muted)} .small{font-size:13px} .warn{color:var(--warn)}
+a{color:var(--water)}
+:focus-visible{outline:3px solid var(--water);outline-offset:2px}
+/* pixel-notched surfaces: the one signature */
+.px{box-shadow:0 -2px 0 0 var(--line),0 2px 0 0 var(--line),-2px 0 0 0 var(--line),2px 0 0 0 var(--line);background:var(--surface);margin:2px}
+
+.block{display:block} .right{text-align:right} .gold{color:var(--gold)}
+.spacer{flex:1}
+.link{font:inherit;background:none;border:0;padding:0;color:var(--water);text-decoration:underline;cursor:pointer}
+details>summary{cursor:pointer}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+button,input,select{font-variant-ligatures:none}
