@@ -63,8 +63,8 @@ function ChangesView() {
     try { S.compare = { name: file.name, root: parseFile(new Uint8Array(await file.arrayBuffer())).root }; renderMain(); } catch (err) { toast('Could not read that file: ' + err.message, 'bad'); }
   } });
   return h('div', { class: 'page' }, pageHead('Review changes', list.length ? 'What will be different when you save.' : 'You have not changed anything yet.',
-    S.mode === 'simple' ? button('Back', () => go('progress')) : null,
-    ['save', 'general'].filter(fk => S.files[fk] && isDirty(fk)).map(fk => button(fk === 'save' ? 'Save game' : 'Save settings', () => saveDialog(fk), 'primary')),
+    inSimple() ? button('Back', () => go('progress')) : null,
+    ['save', 'general'].filter(fk => S.files[fk] && !S.files[fk].sample && isDirty(fk)).map(fk => button(fk === 'save' ? 'Save game' : 'Save settings', () => saveDialog(fk), 'primary')),
     list.length ? button('Undo every change', revert, 'ghost danger') : null),
   [...groups.entries()].map(([k, items]) => {
     const f = S.files[k.split(':')[0]];

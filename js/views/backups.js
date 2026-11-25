@@ -32,7 +32,7 @@ function BackupsView() {
     toast('Downloaded ' + plural(files.length, 'backup') + '.');
     setTimeout(draw, 300);
   };
-  return h('div', { class: 'page' }, pageHead('Backups', 'A copy of every file you open or save. Nothing here is removed unless you delete it.', button('Download all (.zip)', all, 'primary')),
+  return h('div', { class: 'page' }, pageHead('Backups', 'A copy of every file you open or save. Nothing here is removed unless you delete it.', inSimple() ? button('Back', () => go('progress')) : null, button('Download all (.zip)', all, 'primary')),
     h('details', { class: 'help px' }, h('summary', null, 'How to put a backup back'),
       h('ol', null, h('li', null, 'Close WEBFISHING.'), h('li', null, 'Download the backup here.'),
         h('li', null, 'Rename it to the name the game uses, such as ', h('code', null, 'webfishing_save_slot_0.sav'), ' for Save Slot 1.'), h('li', null, 'Move it into the game folder and choose “Replace”.')),

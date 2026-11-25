@@ -23,6 +23,7 @@
     if (ctrl && key === 's') {
       e.preventDefault();
       if ($('.overlay')) return;
+      if (isSample() && S.view !== 'settings') return toast('Open your own save first.');
       const fk = S.view === 'settings' && S.files.general ? 'general' : 'save';
       if (S.files[fk] && isDirty(fk)) saveDialog(fk); else toast('No edits to save yet.');
       return;
@@ -44,5 +45,6 @@
     document.documentElement.dataset.theme = next;
     prefs.set('theme', next);
   });
+  loadSample();
   render();
 })();

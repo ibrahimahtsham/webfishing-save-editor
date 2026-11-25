@@ -47,8 +47,6 @@ function checkSave(f) {
   const dupes = [...seen.values()].filter(c => c > 1).length;
   if (dupes) warn(plural(dupes, 'item ID is', 'item IDs are') + ' used twice. Those items act as one in the game.');
   if (inv.length > LIMITS.inventory) stop('The inventory holds ' + fmtNum(inv.length) + ' items. The game allows ' + fmtNum(LIMITS.inventory) + '.');
-  const unused = inv.filter(n => isItem(val(n, 'id')) && GAME_ITEMS[val(n, 'id')].unobtainable && !GAME_ITEMS[val(n, 'id')].hidden).length;
-  if (unused) warn(plural(unused, 'unused item is', 'unused items are') + ' in the inventory. The game never hands these out, so they may act oddly.');
 
   /* references */
   const refs = new Set(inv.map(n => String(val(n, 'ref'))));

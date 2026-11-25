@@ -9,7 +9,7 @@ const prefs = {
 const S = {
   files: { save: null, general: null },
   mode: prefs.get('mode', 'simple') === 'advanced' ? 'advanced' : 'simple',
-  view: 'progress', undo: [], redo: [], compare: null, rev: 0,
+  view: 'home', undo: [], redo: [], compare: null, rev: 0,
   inv: { q: '', tab: 'tool', sel: new Set(), open: null },
   fish: { id: 'fish_lake_bass', quality: 5, preset: 'biggest', size: null, name: '', copies: 1, fav: false, journal: true,
     sections: new Set(['lake', 'ocean', 'rain', 'water_trash', 'alien', 'void']), rarities: new Set([0, 1, 2, 3, 4, 5]), sizes: new Set(['smallest', 'biggest']), skipOwned: false, favAll: true, setJournal: true },
@@ -17,7 +17,9 @@ const S = {
   cos: { q: '', cat: 'hat', show: 'all' },
   rawOpen: new Set()
 };
-const anyFile = () => S.files.save || S.files.general;
+/* Until a save is opened, a built-in new game stands in so every page can be looked at. It can never be saved. */
+const isSample = () => !!S.files.save && S.files.save.sample === true;
+const inSimple = () => S.mode === 'simple' && !isSample();
 
 /* ---------- commit / undo ---------- */
 function snapshot(fk) { const f = S.files[fk]; return serializeFile(f.root, f.tail); }
@@ -70,7 +72,7 @@ function orderChanged(f) {
 function changeCount() { return allChanges().length; }
 function isDirty(fk) { return allChanges().some(d => d.file === fk); }
 /* edits that exist only in this page */
-function unsaved(fk) { const f = S.files[fk]; return !!f && isDirty(fk) && f.savedRev !== S.rev; }
+function unsaved(fk) { const f = S.files[fk]; return !!f && !f.sample && isDirty(fk) && f.savedRev !== S.rev; }
 function isChanged(fk, path) {
   const f = S.files[fk], a = get(f.orig, ...path), b = get(f.root, ...path);
   return !a || !b ? a !== b : diff(a, b).length > 0;

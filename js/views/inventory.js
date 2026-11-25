@@ -149,7 +149,7 @@ function InventoryView() {
     if (!n || itemTab(val(n, 'id')) !== st.tab) { addKids(detail, h('div', { class: 'empty' }, h('p', null, 'Select an item to edit it.'), h('p', { class: 'small' }, 'Drag items to rearrange them, or hold Alt and press the arrow keys. Tick several to move them together.'))); return; }
     const id = val(n, 'id'), ref = refOf(n), q = val(n, 'quality') || 0, data = isItem(id) ? GAME_ITEMS[id] : null;
     const head = h('div', { class: 'dhead' }, itemIcon(id, 'ic huge'), h('div', null, h('h2', null, nameOf(id)), h('code', { class: 'muted' }, id),
-      !data ? h('p', { class: 'warn small' }, 'Not in the game’s item list. It is kept as it is.') : data.unobtainable ? h('p', { class: 'warn small' }, data.hidden ? 'The game adds this itself. Leave it alone.' : 'The game never hands this out.') : null));
+      !data ? h('p', { class: 'warn small' }, 'Not in the game’s item list. It is kept as it is.') : data.unobtainable ? h('p', { class: 'warn small' }, data.hidden ? 'The game adds this itself. Leave it alone.' : 'Unused item: the game never hands this out. Do not mail it.') : null));
     if (ref === '0') { addKids(detail, head); return; }
     const pos = list().findIndex(x => refOf(x) === ref), last = list().length - 1;
     const sizeN = get(n, 'size'), countN = get(n, 'count') || N.int(1);
@@ -233,7 +233,7 @@ function addItemDialog() {
         toast(added === n ? 'Added ' + n + ' × ' + nameOf(pick) : 'Added ' + added + '. The inventory is full at 10,000.', added === n ? '' : 'bad');
       }, 'primary')));
   };
-  const m = modal('Add item', [q, chips, checkbox('Show unused items (they may act oddly in the game)', false, v => { unused = v; draw(); }), h('div', { class: 'scroll' }, list), form], { wide: true });
+  const m = modal('Add item', [q, chips, checkbox('Show unused items (the game never hands these out)', false, v => { unused = v; draw(); }), h('div', { class: 'scroll' }, list), form], { wide: true });
   q.addEventListener('input', draw);
   drawChips(); draw(); drawForm(); q.focus();
 }

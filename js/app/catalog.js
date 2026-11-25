@@ -28,6 +28,7 @@ const ALL_FISH = Object.keys(GAME_ITEMS).filter(id => GAME_ITEMS[id].category ==
 const JOURNAL_IDS = Object.fromEntries(JOURNAL_SECTIONS.map(s => [s.key, CATCHABLE.filter(id => GAME_ITEMS[id].table === s.key)]));
 /* Things you own once and keep: what "unlock everything" hands out. */
 const KEEPER_TOOLS = Object.keys(GAME_ITEMS).filter(id => ['Item_Tools', 'Item_Chalk', 'Item_Consumables'].includes(GAME_ITEMS[id].group) && !GAME_ITEMS[id].unobtainable && id !== 'treasure_chest');
+const UNUSED_ITEMS = Object.keys(GAME_ITEMS).filter(id => GAME_ITEMS[id].unobtainable && !GAME_ITEMS[id].hidden);
 const KEEPER_PROPS = Object.keys(GAME_ITEMS).filter(id => GAME_ITEMS[id].category === 'furniture' && !GAME_ITEMS[id].unobtainable);
 
 const COS_PREFIX = { species_: 'species', pattern_: 'pattern', pcolor_: 'primary_color', scolor_: 'secondary_color', hat_: 'hat', eye_: 'eye', nose_: 'nose', mouth_: 'mouth', undershirt_: 'undershirt', shirt_: 'undershirt', overshirt_: 'overshirt', legs_: 'legs', tail_: 'tail', accessory_: 'accessory', title_: 'title', bobber_: 'bobber' };

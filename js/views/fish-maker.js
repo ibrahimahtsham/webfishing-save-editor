@@ -17,7 +17,7 @@ function CustomFish(f) {
       h('dl', { class: 'facts' }, h('dt', null, 'Size'), h('dd', null, sizeText(s)), h('dt', null, 'Average'), h('dd', null, sizeText(d.avg)),
         h('dt', null, 'Sells for'), h('dd', null, d.noSell ? 'Cannot be sold' : '$' + fmtNum(itemWorth(st.id, s, st.quality))), h('dt', null, 'Size name'), h('dd', null, sizeName(st.id, s) || 'None')),
       s > biggestNatural(st.id) ? h('p', { class: 'warn small' }, 'Bigger than any fish the game can roll.' + (s > MAX_DRAWN_SIZE ? ' The game draws it as 120 m.' : '')) : null,
-      d.unobtainable ? h('p', { class: 'warn small' }, 'Unused fish. The game never hands it out and will not let it be mailed.') : null);
+      d.unobtainable ? h('p', { class: 'warn small' }, 'Unused fish: the game never hands it out. Do not mail it.') : null);
   };
   const groups = [...JOURNAL_SECTIONS.map(s => [s.name, JOURNAL_IDS[s.key]]), ['Other finds', ALL_FISH.filter(id => !CATCHABLE.includes(id) && !GAME_ITEMS[id].unobtainable)], ['Unused', ALL_FISH.filter(id => GAME_ITEMS[id].unobtainable)]].filter(([, ids]) => ids.length);
   const draw = () => {

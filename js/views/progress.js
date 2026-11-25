@@ -17,7 +17,7 @@ function ProgressView() {
       Number(tier.v) < 3 ? numField(fk, 'loan_left', 'Left to pay for the next tier', { min: 0 }) : null),
       card('First visit', checkbox('Skip the tutorial', tutorialDone(f.root), v => commit(fk, v ? 'Skip tutorial' : 'Replay tutorial', () => setTutorialDone(f.root, v))), h('p', { class: 'muted small' }, 'Untick it to be sent to the tutorial island on your next visit.')),
       card('Totals and voice', numField(fk, 'fish_caught', 'Fish caught', { min: 0 }), h('div', { class: 'two' }, numField(fk, 'voice_pitch', 'Voice pitch', { step: 0.1 }), numField(fk, 'voice_speed', 'Voice speed', { step: 0.1 }))),
-      card('This file', h('dl', { class: 'facts' },
+      f.sample ? null : card('This file', h('dl', { class: 'facts' },
         h('dt', null, 'Name'), h('dd', null, f.name), h('dt', null, 'Size'), h('dd', null, fmtBytes(f.u8.length)),
         h('dt', null, 'Game version'), h('dd', null, fmtNum(val(f.root, 'version') || 0, 2)),
         h('dt', null, 'Rewrites exactly'), h('dd', null, f.lossless ? 'Yes, byte for byte' : 'No, so saving is off'),

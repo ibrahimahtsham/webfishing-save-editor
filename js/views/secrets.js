@@ -6,7 +6,7 @@ function ownsThing(root, id) {
     : val(root, 'cosmetics_unlocked').some(n => n.v === id);
 }
 function SecretsView() {
-  const f = S.files.save, root = f && f.root;
+  const f = S.files.save, root = f && !f.sample ? f.root : null;
   const row = (id, text, look, add) => {
     const has = root && ownsThing(root, id), c = isCosmetic(id) ? GAME_COSMETICS[id] : null;
     return h('article', { class: 'secret px' + (has ? ' have' : '') },
@@ -26,10 +26,10 @@ function SecretsView() {
     h('p', { class: 'muted' }, sub), warn ? h('p', { class: 'note' }, warn) : null,
     h('div', { class: 'secrets' }, list.map(s => row(s.id, s.note || s.how, s.look, add))));
   return h('div', { class: 'page' },
-    pageHead('Secret items', 'What is hidden in WEBFISHING and what it is. This page has spoilers.', S.mode === 'simple' ? button('Back', () => go('progress')) : null),
+    pageHead('Secret items', 'What is hidden in WEBFISHING and what it is. This page has spoilers.', inSimple() ? button('Back', () => go('progress')) : null),
     section('Hidden cosmetics', 'Finished and wearable, but the game never gives them to you.', SECRET_COSMETICS, own),
     section('Unused items', 'Left over from features that were cut. The game never hands these out.', SECRET_ITEMS, item,
-      'These have not been tried in the game yet and may act oddly. Use a spare save slot if you want to look at them.'),
+      'Do not mail these. The game turns an unused item into a salmon when it is mailed.'),
     section('Secrets you can find yourself', 'Everyone can get these by playing.', FINDABLE_SECRETS, null),
     h('section', { class: 'secretblock' }, h('h2', null, 'Contributor titles'),
       h('p', { class: 'muted' }, 'Made for people who helped with the game. Anyone else who wears one is shown as “Scout”, so adding them does nothing.'),

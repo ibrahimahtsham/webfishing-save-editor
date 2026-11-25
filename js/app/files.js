@@ -17,6 +17,10 @@ function readSaveFile(name, u8) {
     slot: slot ? slot[1] : null, isBackup: /\.backup$/i.test(name), vaultId: null, vaultError: '', savedRev: -1
   };
 }
+function loadSample() {
+  const f = readSaveFile('sample', serializeFile(freshRoot(), null));
+  S.files.save = Object.assign(f, { sample: true });
+}
 async function storeOriginal(f) {
   try {
     const rec = await Vault.add({ name: f.name, kind: f.kind, slot: f.slot, bytes: f.u8, reason: 'opened', summary: summarize(f.kind, f.orig) });
@@ -65,13 +69,14 @@ function confirmReplace(kind, go) {
 }
 function openFile(f) {
   S.files[f.kind] = f;
+  if (f.kind === 'save' && (S.view === 'home' || S.mode === 'simple')) S.view = 'progress';
   dropHistory(f.kind);
   S.rev++;
   diffCache = null;
   if (f.kind === 'save') {
     S.inv.sel.clear(); S.inv.open = null; S.jr.open = null; S.compare = null;
     if (viewFile(S.view) === 'general' && !S.files.general) S.view = 'progress';
-  } else if (!S.files.save) { S.mode = 'advanced'; S.view = 'settings'; }
+  } else if (isSample()) S.view = 'settings';
   render();
   if (!f.lossless) toast('This file cannot be rewritten exactly, so saving is turned off for it.', 'bad');
   else if (f.vaultError) toast('Opened, but this browser could not keep a copy. Download a backup first.', 'bad');
@@ -83,8 +88,9 @@ function closeFile(fk) {
     S.files[fk] = null;
     dropHistory(fk);
     diffCache = null;
-    if (viewFile(S.view) === fk) S.view = fk === 'general' ? 'progress' : S.files.general ? 'settings' : 'progress';
-    if (!S.files.save && S.files.general) { S.mode = 'advanced'; S.view = 'settings'; }
+    S.rev++;
+    if (fk === 'save') { loadSample(); S.inv.sel.clear(); S.inv.open = null; S.jr.open = null; S.compare = null; S.view = 'home'; }
+    else if (S.view === 'settings') S.view = isSample() ? 'home' : 'progress';
     render();
   };
   if (unsaved(fk)) confirmBox('Close ' + f.name + '?', 'You have edits that you have not saved. They will be lost.', 'Discard edits and close', go, true);

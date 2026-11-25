@@ -206,10 +206,10 @@ function missingFish(root, plan) {
   return plan.filter(x => !have.has(fishKey(x.id, x.quality, x.size)));
 }
 function hasFullCollection(root) { return !missingFish(root, FULL_COLLECTION()).length; }
-/* every fish in the inventory that belongs to the collection, however it got there */
+/* every fish in the inventory that belongs to the collection, and the unused test fish */
 function favoriteCollection(root) {
   const keys = new Set(FULL_COLLECTION().map(x => fishKey(x.id, x.quality, x.size)));
-  setFavorites(root, tabItems(root, 'fish').filter(n => keys.has(fishKey(val(n, 'id'), val(n, 'quality'), Number(val(n, 'size'))))).map(n => val(n, 'ref')));
+  setFavorites(root, tabItems(root, 'fish').filter(n => UNUSED_ITEMS.includes(val(n, 'id')) || keys.has(fishKey(val(n, 'id'), val(n, 'quality'), Number(val(n, 'size'))))).map(n => val(n, 'ref')));
 }
 function addFish(root, list, journal) {
   const added = addItems(root, list);
@@ -241,6 +241,7 @@ function completion(root) {
     ['Bait', Object.keys(GAME_BAITS).filter(id => baits.has(id)).length, Object.keys(GAME_BAITS).length],
     ['Tools', KEEPER_TOOLS.filter(id => maxed.has(id)).length, KEEPER_TOOLS.length],
     ['Props', KEEPER_PROPS.filter(id => ids.has(id)).length, KEEPER_PROPS.length],
+    ['Unused items', UNUSED_ITEMS.filter(id => ids.has(id)).length, UNUSED_ITEMS.length],
     ['Quests', questsDone(root), questBoard().length],
     ['Fish collection', fullPlan.length - missingFish(root, fullPlan).length, fullPlan.length],
     ['Rank', Math.min(LIMITS.level, Number(val(root, 'level'))), LIMITS.level],
@@ -272,6 +273,7 @@ const UNLOCK_PARTS = [
   ['cosmetics', 'Cosmetics', 'Everything in the game files, including hidden ones'],
   ['tools', 'Tools', 'Every rod, instrument, chalk, drink and gadget, with full stacks of 99'],
   ['props', 'Props', 'One of each prop you lack'],
+  ['unused', 'Unused items', 'The 8 leftovers from cut features, see Secret items'],
   ['journal', 'Journal', 'Every fish caught in all six rarities'],
   ['quests', 'Quests', 'One-time quests finished with their rewards, repeating ones at tier 9'],
   ['fish', 'Fish collection', 'All 78 fish in six rarities, smallest and biggest: 936 fish'],
@@ -311,8 +313,8 @@ function unlockEverything(root, parts, { favoriteFish = false, addFishSet = !has
     for (const id of USABLE_COSMETICS) if (!have.has(id)) arr.v.push(N.str(id));
   }
   const ids = new Set(invOf(root).v.map(n => val(n, 'id')));
-  const want = [...(parts.tools ? KEEPER_TOOLS : []), ...(parts.props ? KEEPER_PROPS : [])].filter(id => !ids.has(id));
-  if (want.length) addItems(root, want.map(id => ({ id, count: stackMax(id) })));
+  const want = [...(parts.tools ? KEEPER_TOOLS : []), ...(parts.props ? KEEPER_PROPS : []), ...(parts.unused ? UNUSED_ITEMS : [])].filter(id => !ids.has(id));
+  if (want.length) addItems(root, want.map(id => ({ id, count: stackMax(id), size: GAME_ITEMS[id].usesSize ? fishAvg(id) : 1 })));
   if (parts.tools) fillStacks(root);
   if (parts.journal) for (const id of CATCHABLE) recordCatch(root, id, { size: GAME_ITEMS[id].avg, qualities: [0, 1, 2, 3, 4, 5] });
   if (parts.quests) maxQuests(root);

@@ -1,6 +1,6 @@
 # Tackle Box, a WEBFISHING save editor
 
-Open `index.html` in a browser. Nothing to install, and your files stay on your computer.
+Open `index.html` in a browser. Nothing to install, and your files stay on your computer. It starts with a sample new game so you can look around before opening a save. The sample can never be saved.
 
 Built for WEBFISHING 1.12.
 

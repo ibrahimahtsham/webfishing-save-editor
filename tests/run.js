@@ -102,7 +102,7 @@ for (const [name, root0] of saves) {
     const f = open('webfishing_save_slot_0.sav', base), old = X.favoriteSet(base), ownFish = new Set(refs(base, 'fish'));
     X.unlockEverything(f.root, parts, { favoriteFish: true });
     const favs = X.favoriteSet(f.root), added = refs(f.root, 'fish').filter(x => !ownFish.has(x));
-    assert.strictEqual(added.length, 936); assert(added.every(x => favs.has(x))); assert([...old].every(x => favs.has(x)));
+    assert.strictEqual(added.length, 936 + 3); assert(added.every(x => favs.has(x))); assert([...old].every(x => favs.has(x)));
     assert.strictEqual(favs.size, X.val(f.root, 'locked_refs').length);
     for (const x of ownFish) assert.strictEqual(favs.has(x), old.has(x));
     assert.strictEqual(stops(f).length, 0);
@@ -132,6 +132,16 @@ for (const [name, root0] of saves) {
     for (const tab of ['tool', 'fish', 'furniture']) { const list = X.tabItems(r, tab).map(n => X.val(n, 'id')); list.forEach((id, i) => assert(i === 0 || list[i - 1] === id || !list.slice(0, i).includes(id), tab + ' ' + id)); }
     const old = X.clone(root0); X.organizeAll(old);
     assert.strictEqual(X.diff(root0, old).length, 0);
+  });
+  test(name + ': unlock adds each unused item once, at its normal size', () => {
+    const r = fresh(); X.unlockEverything(r, parts); X.unlockEverything(r, parts);
+    for (const s of X.SECRET_ITEMS) {
+      const got = X.get(r, 'inventory').v.filter(n => X.val(n, 'id') === s.id);
+      assert.strictEqual(got.length, Math.max(1, X.get(root0, 'inventory').v.filter(n => X.val(n, 'id') === s.id).length), s.id);
+      if (X.GAME_ITEMS[s.id].usesSize) assert.strictEqual(X.val(got[0], 'size'), X.GAME_ITEMS[s.id].avg);
+    }
+    const off = fresh(); X.unlockEverything(off, { ...parts, unused: false });
+    for (const s of X.SECRET_ITEMS) assert.strictEqual(X.get(off, 'inventory').v.filter(n => X.val(n, 'id') === s.id).length, X.get(root0, 'inventory').v.filter(n => X.val(n, 'id') === s.id).length, s.id);
   });
   test(name + ': unlock never lowers a number', () => {
     const r = fresh(); X.unlockEverything(r, parts);
@@ -192,6 +202,11 @@ test('every quest reward exists in the game data', () => {
 });
 test('start fresh decides the tutorial', () => {
   for (const skipTutorial of [true, false]) assert.strictEqual(X.tutorialDone(X.startFresh(X.freshRoot(), { look: 'none', keep: new Set(['tags']), skipTutorial })), skipTutorial);
+});
+test('the sample game loads, is marked, and never counts as unsaved', () => {
+  E('loadSample()'); assert(E('isSample()')); assert(E('S.files.save.lossless'));
+  E("setNum(get(S.files.save.root, 'money'), 777); diffCache = null"); assert(E("isDirty('save')")); assert(!E("unsaved('save')"));
+  E('loadSample()'); assert.strictEqual(Number(E("val(S.files.save.root, 'money')")), 25);
 });
 test('hotbar and favorites follow removal', () => {
   const r = X.freshRoot(), [n] = X.addItems(r, [{ id: 'guitar' }]), ref = X.val(n, 'ref');

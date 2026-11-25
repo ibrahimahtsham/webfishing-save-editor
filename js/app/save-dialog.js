@@ -19,6 +19,7 @@ async function downloadBackup(f) {
 function saveDialog(fk) {
   const f = S.files[fk];
   if (!f) return;
+  if (f.sample) return toast('This is the sample game, so there is nothing to save. Open your own save first.', 'bad');
   const { issues, bytes } = checkSave(f);
   const stops = issues.filter(i => i.level === 'stop'), warns = issues.filter(i => i.level === 'warn');
   let closed = false, slot = f.slot;
