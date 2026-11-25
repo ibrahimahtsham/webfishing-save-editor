@@ -147,3 +147,4 @@ body.arranging,body.arranging *{cursor:grabbing!important;user-select:none}
 .samplebar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 14px;margin:0 auto 20px;max-width:1320px;border-left:4px solid var(--warn)}
 .asklist{display:flex;flex-direction:column;gap:12px} .asklist .check{align-items:flex-start}
 .setcount{width:90px} .row-item .btn{flex:none}
+.accbar{display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;margin:0 0 10px} .accbar p{flex-basis:100%;margin:0}

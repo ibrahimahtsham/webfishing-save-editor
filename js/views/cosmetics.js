@@ -22,7 +22,7 @@ function CosmeticsView() {
     const cat = cosCat(id);
     if (cat === 'accessory') {
       const a = eq.m.get('accessory'), on = a && a.v.some(x => x.v === id);
-      if (!on && a && a.v.length >= LIMITS.accessories) return toast('You can wear 4 accessories. Take one off first.', 'bad');
+      if (!on && !st.many && a && a.v.length >= LIMITS.accessories) return toast('You can wear 4 accessories. Take one off, or tick “Wear more than 4”.', 'bad');
       return edit((on ? 'Take off ' : 'Wear ') + nameOf(id), () => { toggleInList(unlocked, id, true); const arr = ensure(eq, 'accessory', () => N.arr()); arr.v = on ? arr.v.filter(x => x.v !== id) : [...arr.v, N.str(id)]; });
     }
     edit('Wear ' + nameOf(id), () => { toggleInList(unlocked, id, true); ensure(eq, cat, () => N.str('')).v = id; });
@@ -31,6 +31,20 @@ function CosmeticsView() {
     const on = owned().has(id);
     if (on && COS_SLOTS.some(([s]) => wornIn(s).includes(id))) return toast('You are wearing that. Change it first.', 'bad');
     edit((on ? 'Lock ' : 'Unlock ') + nameOf(id), () => toggleInList(unlocked, id, !on));
+  };
+  const wearAccessories = (label, ids) => edit(label, () => {
+    const arr = ensure(eq, 'accessory', () => N.arr()), have = new Set(arr.v.map(x => x.v));
+    ids.forEach(id => toggleInList(unlocked, id, true));
+    arr.v = ids.length ? [...arr.v, ...ids.filter(id => !have.has(id)).map(id => N.str(id))] : [];
+  });
+  const accessoryTools = () => {
+    const all = idsFor('accessory').filter(isCosmetic), worn = wornIn('accessory').length;
+    return h('div', { class: 'accbar' },
+      checkbox('Wear more than 4 (experiment)', st.many, v => { st.many = v; drawGrid(); }),
+      h('span', { class: 'muted small' }, worn + ' worn'),
+      st.many ? button('Wear all ' + all.length, () => wearAccessories('Wear every accessory', all), 'small') : null,
+      worn ? button('Take all off', () => wearAccessories('Take off accessories', []), 'small') : null,
+      st.many ? h('p', { class: 'muted small' }, 'The limit of 4 is only in the game’s outfit menu. There you can take pieces off, but not put more on until you are below 4.') : null);
   };
   const drawLook = () => { const e = equippedOf(root); put(look, Doll(e), h('div', { class: 'portrait-cap' }, h('b', null, titleText(e) || 'No title'))); };
   const drawEquip = () => {
@@ -46,7 +60,8 @@ function CosmeticsView() {
     const all = idsFor(st.cat);
     const ids = all.filter(id => (!q || (nameOf(id) + id).toLowerCase().includes(q)) && (st.show === 'all' || (st.show === 'owned') === have.has(id)));
     const missing = all.filter(id => !have.has(id) && !CONTRIBUTOR_TITLES.has(id));
-    put(grid, 
+    put(grid,
+      st.cat === 'accessory' ? accessoryTools() : null,
       h('div', { class: 'row wrap' }, h('span', { class: 'muted' }, all.filter(id => have.has(id)).length + ' of ' + all.length + ' owned'),
         missing.length ? button('Unlock ' + missing.length + ' here', () => edit('Unlock cosmetics', () => missing.forEach(id => toggleInList(unlocked, id, true))), 'small') : null),
       ids.length ? h('div', { class: 'grid compact' }, ids.map(id => {

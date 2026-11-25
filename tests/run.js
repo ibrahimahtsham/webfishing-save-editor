@@ -258,6 +258,12 @@ test('every way of adding items favorites them', () => {
   const r = X.freshRoot(), made = [...X.addItems(r, [{ id: 'guitar' }, { id: 'fish_lake_bass', size: 45, quality: 2 }]), ...X.addItems(r, X.fragmentSet(1)), ...X.addItems(r, X.boneSet(1))];
   const favs = X.favoriteSet(r); assert(made.every(n => favs.has(String(X.val(n, 'ref'))))); assert.strictEqual(favs.size, made.length);
 });
+test('wearing every accessory is allowed and reads back', () => {
+  const f = open('webfishing_save_slot_0.sav', X.freshRoot()), ids = Object.keys(X.GAME_COSMETICS).filter(id => X.GAME_COSMETICS[id].category === 'accessory');
+  X.get(f.root, 'cosmetics_equipped', 'accessory').v = ids.map(id => X.N.str(id));
+  same(stops(f), []); assert.strictEqual(X.checkSave(f).issues.filter(i => /accessories are worn/.test(i.text)).length, 1);
+  same(X.val(X.parseFile(X.serializeFile(f.root, f.tail)).root, 'cosmetics_equipped', 'accessory').map(n => n.v), ids);
+});
 test('hotbar and favorites follow removal', () => {
   const r = X.freshRoot(), [n] = X.addItems(r, [{ id: 'guitar' }]), ref = X.val(n, 'ref');
   X.setHotbar(r, 3, ref); X.setFavorite(r, ref, true); assert.strictEqual(X.hotbarSlotOf(r, ref), 3); assert(X.isFavorite(r, ref));

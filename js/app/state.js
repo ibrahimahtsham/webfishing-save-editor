@@ -14,7 +14,7 @@ const S = {
   fish: { id: 'fish_lake_bass', quality: 5, preset: 'biggest', size: null, name: '', copies: 1, journal: true,
     sections: new Set(['lake', 'ocean', 'rain', 'water_trash', 'alien', 'void']), rarities: new Set([0, 1, 2, 3, 4, 5]), sizes: new Set(['smallest', 'biggest']), skipOwned: false, setJournal: true },
   jr: { sec: 'lake', q: '', open: null, show: 'all' },
-  cos: { q: '', cat: 'hat', show: 'all' },
+  cos: { q: '', cat: 'hat', show: 'all', many: false },
   rawOpen: new Set()
 };
 /* Until a save is opened, a built-in new game stands in so every page can be looked at. It can never be saved. */

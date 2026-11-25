@@ -64,7 +64,7 @@ function checkSave(f) {
     }
   }
   const acc = get(eq, 'accessory');
-  if (acc && acc.t === 'arr' && acc.v.length > LIMITS.accessories) warn('More than 4 accessories are worn. The game only lets you pick 4.');
+  if (acc && acc.t === 'arr' && acc.v.length > LIMITS.accessories) warn('' + plural(acc.v.length, 'accessory', 'accessories') + ' are worn. The game’s menu stops at 4, so you can take them off there but not add more until you are below 4.');
 
   return { issues: out, bytes };
 }
